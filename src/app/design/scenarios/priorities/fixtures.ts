@@ -7,6 +7,8 @@ import {
 } from '@/utils/enums';
 import type {TaskItem} from '@/lib/db/tasks';
 import type {MatrixActivePlan} from '@/services/matrixService';
+import type {PrioritiesPageData} from '@/types/priorities';
+import {toPrioritiesPageProps} from '@/utils/oneOffUtils';
 
 /* Priorities scenario fixtures — the real matrix page fed a populated
    Eisenhower spread with a couple of tracked (on-board) tasks. */
@@ -60,7 +62,7 @@ const SHEET_TASK_ID = 'scn-move-sheet';
 /** The tracked card shown in the mobile sheet's Done-only state. */
 const SHEET_TRACKED_TASK_ID = 'scn-move-sheet-tracked';
 
-export const MATRIX_TASKS: TaskItem[] = [
+const MATRIX_TASKS: TaskItem[] = [
   // Do First — one tracked (dimmed, This Week tag), one actionable
   task({
     id: TRACKED_POPOVER_TASK_ID,
@@ -135,8 +137,24 @@ export const DONE_TASK: TaskItem = MATRIX_TASKS.find(
 
 /** The matrix right after DONE_TASK was marked done — the page drops the
     card optimistically, so the composed Done-toast tabs render this. */
-export const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(
-  t => t.id !== DONE_TASK.id,
+const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(t => t.id !== DONE_TASK.id);
+
+/** The page's props for a fixture matrix, shaped by the route's own adapter;
+    without a plan the header falls back to NOW's ISO week (the plan's). */
+const toScenarioPage = (
+  tasks: TaskItem[],
+  activePlan: MatrixActivePlan | null,
+): PrioritiesPageData => toPrioritiesPageProps({tasks, activePlan}, NOW);
+
+export const MATRIX_PAGE = toScenarioPage(MATRIX_TASKS, SCENARIO_ACTIVE_PLAN);
+export const MATRIX_PAGE_NO_PLAN = toScenarioPage(MATRIX_TASKS, null);
+export const MATRIX_PAGE_AFTER_DONE = toScenarioPage(
+  MATRIX_TASKS_AFTER_DONE,
+  SCENARIO_ACTIVE_PLAN,
+);
+export const MATRIX_PAGE_AFTER_DONE_NO_PLAN = toScenarioPage(
+  MATRIX_TASKS_AFTER_DONE,
+  null,
 );
 
 /** Play scope for one fixture card: @hello-pangea/dnd stamps each draggable

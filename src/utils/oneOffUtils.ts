@@ -1,8 +1,10 @@
 import type {MatrixTaskRow, TaskItem} from '@/lib/db/tasks';
 import type {CreateAdhocTaskInput} from '../schemas';
 import type {OneOffTaskSummary} from '../types/plan';
+import type {PrioritiesPageData} from '../types/priorities';
+import type {MatrixData} from '../services/matrixService';
 import {PriorityQuadrant, TaskStatus} from './enums';
-import {formatKanbanISODate} from './dateUtils';
+import {formatKanbanISODate, getISOWeekKey} from './dateUtils';
 import {sizeToPoints} from './sizeUtils';
 import {getWeekPlacement} from './taskUtils';
 
@@ -16,6 +18,13 @@ export const QUADRANT_ORDER: PriorityQuadrant[] = [
   PriorityQuadrant.SQUEEZE_IN,
   PriorityQuadrant.MAYBE_LATER,
 ];
+
+/**
+ * Tasks created before the matrix (or during a deploy window) may carry a null
+ * quadrant — they group into the backfill default so no card silently drops
+ * out of the 2×2 grid; a new task's quadrant picker starts there too.
+ */
+export const FALLBACK_QUADRANT = PriorityQuadrant.SCHEDULE;
 
 /** Where a one-off sits on the weeks. */
 export const OneOffTaskState = {
@@ -79,4 +88,40 @@ export const toMatrixTaskRow = ({
   size,
   points: sizeToPoints(size),
   quadrant,
+});
+
+/** One-offs by matrix quadrant, each keeping the order given; a task with no
+    quadrant goes to FALLBACK_QUADRANT. */
+export const groupTasksByQuadrant = <Task extends Pick<TaskItem, 'quadrant'>>(
+  tasks: readonly Task[],
+): Record<PriorityQuadrant, Task[]> => {
+  const groups: Record<PriorityQuadrant, Task[]> = {
+    [PriorityQuadrant.DO_FIRST]: [],
+    [PriorityQuadrant.SCHEDULE]: [],
+    [PriorityQuadrant.SQUEEZE_IN]: [],
+    [PriorityQuadrant.MAYBE_LATER]: [],
+  };
+  for (const task of tasks) {
+    groups[task.quadrant ?? FALLBACK_QUADRANT].push(task);
+  }
+  return groups;
+};
+
+/** A one-off is tracked once it is on this week's active plan. */
+export const isTrackedTask = (
+  task: Pick<TaskItem, 'planId'>,
+  activePlanId: string | null,
+): boolean => activePlanId !== null && task.planId === activePlanId;
+
+/**
+ * The Priorities page's props from the matrix read: with no active plan the
+ * header badge falls back to `today`'s ISO week.
+ */
+export const toPrioritiesPageProps = (
+  {tasks, activePlan}: MatrixData,
+  today: Date,
+): PrioritiesPageData => ({
+  periodKey: activePlan?.periodKey ?? getISOWeekKey(today),
+  tasks,
+  activePlan,
 });
