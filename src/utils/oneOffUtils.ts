@@ -1,10 +1,12 @@
 import type {MatrixTaskRow, TaskItem} from '@/lib/db/tasks';
+import type {MatrixData} from '@/services/matrixService';
+import type {PrioritiesPageData} from '@/types/priorities';
 import type {CreateAdhocTaskInput} from '../schemas';
 import type {OneOffTaskSummary} from '../types/plan';
 import {PriorityQuadrant, TaskStatus} from './enums';
-import {formatKanbanISODate} from './dateUtils';
+import {formatKanbanISODate, getISOWeekKey} from './dateUtils';
 import {sizeToPoints} from './sizeUtils';
-import {getWeekPlacement} from './taskUtils';
+import {WeekPlacement, getWeekPlacement} from './taskUtils';
 
 /** The most one-off tasks one Claude call creates, completes or moves. */
 export const ONE_OFF_BATCH_LIMIT = 20;
@@ -16,6 +18,44 @@ export const QUADRANT_ORDER: PriorityQuadrant[] = [
   PriorityQuadrant.SQUEEZE_IN,
   PriorityQuadrant.MAYBE_LATER,
 ];
+
+/**
+ * Tasks created before the matrix (or during a deploy window) may carry a null
+ * quadrant — group them into the backfill default so no card silently drops
+ * out of the 2×2 grid. Also the add form's preselected quadrant.
+ */
+export const FALLBACK_QUADRANT = PriorityQuadrant.SCHEDULE;
+
+/** The Priorities page's props from the matrix as the server reads it. */
+export const toPrioritiesPageProps = (
+  matrix: MatrixData,
+  today: Date,
+): PrioritiesPageData => ({
+  ...matrix,
+  periodKey: matrix.activePlan?.periodKey ?? getISOWeekKey(today),
+});
+
+/** The matrix's four cells: each quadrant's tasks, in the order given. */
+export const groupTasksByQuadrant = (
+  tasks: readonly TaskItem[],
+): Record<PriorityQuadrant, TaskItem[]> => {
+  const tasksByQuadrant: Record<PriorityQuadrant, TaskItem[]> = {
+    [PriorityQuadrant.DO_FIRST]: [],
+    [PriorityQuadrant.SCHEDULE]: [],
+    [PriorityQuadrant.SQUEEZE_IN]: [],
+    [PriorityQuadrant.MAYBE_LATER]: [],
+  };
+  for (const task of tasks) {
+    tasksByQuadrant[task.quadrant ?? FALLBACK_QUADRANT].push(task);
+  }
+  return tasksByQuadrant;
+};
+
+/** On this week's board: the one-off sits on the active plan. */
+export const isTrackedTask = (
+  task: Pick<TaskItem, 'planId'>,
+  activePlanId: string | null,
+): boolean => getWeekPlacement(task, activePlanId) === WeekPlacement.THIS_WEEK;
 
 /** Where a one-off sits on the weeks. */
 export const OneOffTaskState = {
