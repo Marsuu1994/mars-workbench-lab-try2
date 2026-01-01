@@ -12,6 +12,8 @@ import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
+import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
+import type {PrioritiesPageContextValue} from '@/components/domain/priorities/PrioritiesPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
 /** Title halves — the accent word renders with fx-text-gradient (the
@@ -418,10 +420,12 @@ export const STEP_PATH_FIXTURES: {label: string; step: ProjectStepContext}[] = [
 ];
 
 // ── Matrix card fixtures ─────────────────────────────────────────────────────
+/** The plan the tracked matrix card sits on. */
+export const MATRIX_CARD_PLAN_ID = 'gallery-matrix-plan';
+
 export interface MatrixCardFixture {
   label: string;
   task: TaskItem;
-  isTracked: boolean;
 }
 
 export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
@@ -438,7 +442,6 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       planId: null,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: false,
   },
   {
     label: 'Tracked (This Week)',
@@ -447,12 +450,27 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       type: TaskType.AD_HOC,
       title: 'Shop birthday gift',
       description: 'For mom — this Saturday',
+      planId: MATRIX_CARD_PLAN_ID,
       status: TaskStatus.TODO,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: true,
   },
 ];
+
+/** The page context a matrix card or the mobile Move-to panel renders in,
+    outside the Priorities page: the fixture's plan, no popover open, inert
+    handlers (the frame swallows clicks). */
+export const inertPrioritiesPageContext = (
+  activePlanId: string | null,
+): PrioritiesPageContextValue => ({
+  activePlanId,
+  openPopoverTaskId: null,
+  togglePopover: () => undefined,
+  openMoveToSheet: () => undefined,
+  openAddTask: () => undefined,
+  trackTask: () => undefined,
+  completeTask: () => undefined,
+});
 
 // ── Progress dashboard fixture ───────────────────────────────────────────────
 export const PROGRESS_FIXTURE = {
@@ -543,6 +561,12 @@ export const BOARD_COLUMN_STATUS = TaskStatus.TODO;
 export const BOARD_COLUMN_CARDS: BoardCard[] = MINI_CARD_FIXTURES.map(
   fixture => fixture.card,
 );
+
+/** The page context a mobile backlog card renders in, outside the Board
+    page: an inert pull (the frame swallows clicks). */
+export const inertBoardPageContext = (): BoardPageContextValue => ({
+  pullToTodo: () => undefined,
+});
 
 /** PlanTaskRow — tasks already on the plan the form keeps or lets go. */
 export const PLAN_TASK_ROW_FIXTURES = [
