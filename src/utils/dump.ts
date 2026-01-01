@@ -3,7 +3,13 @@
  * the server action's paging, and the composer/feed UI (textarea maxLength,
  * skeletons, day grouping).
  */
-import {KANBAN_TZ, formatDayLabel, formatKanbanISODate} from './dateUtils';
+import type {DumpFeedPage, DumpPageProps} from '@/types/dump';
+import {
+  KANBAN_TZ,
+  formatDayLabel,
+  formatKanbanISODate,
+  getISOWeekKey,
+} from './dateUtils';
 
 export const DUMP_PAGE_SIZE = 20;
 export const DUMP_ENTRY_MAX_LENGTH = 10000;
@@ -75,4 +81,26 @@ export function groupEntriesByDay<T extends {createdAt: Date}>(
     current.entries.push(entry);
   }
   return groups;
+}
+
+const NO_FEED: DumpFeedPage = {entries: [], nextCursor: null};
+
+/**
+ * The Dump route's adapter: the feed's first page and the entry count → the
+ * page's props. Dump is plan-independent, so the header shows `today`'s ISO
+ * week. The cursorless first page can only succeed; on the (unreachable)
+ * error branch the feed starts empty, so the types stay honest.
+ */
+export function toDumpPageProps(
+  feed: {data: DumpFeedPage} | {error: unknown},
+  totalCount: number,
+  today: Date,
+): DumpPageProps {
+  const {entries, nextCursor} = 'data' in feed ? feed.data : NO_FEED;
+  return {
+    periodKey: getISOWeekKey(today),
+    initialEntries: entries,
+    initialNextCursor: nextCursor,
+    initialTotalCount: totalCount,
+  };
 }
