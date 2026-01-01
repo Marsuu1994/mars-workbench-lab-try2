@@ -1,0 +1,174 @@
+/**
+ * Canonical timezone for all kanban date calculations.
+ * Ensures consistent "today" regardless of server timezone (UTC on Vercel vs local dev).
+ */
+export const KANBAN_TZ = 'America/Los_Angeles';
+
+const tzFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: KANBAN_TZ,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/**
+ * Returns today's date at midnight, anchored to KANBAN_TZ.
+ * On Vercel (UTC server) this returns the correct LA-timezone date.
+ */
+export function getTodayDate(): Date {
+  const parts = tzFormatter.formatToParts(new Date());
+  const year = Number(parts.find(part => part.type === 'year')!.value);
+  const month = Number(parts.find(part => part.type === 'month')!.value) - 1;
+  const day = Number(parts.find(part => part.type === 'day')!.value);
+  return new Date(year, month, day);
+}
+
+/**
+ * Parses a periodKey like "2026-W06" and returns the Monday of that ISO week.
+ */
+export function getMondayFromPeriodKey(periodKey: string): Date {
+  const [yearStr, weekStr] = periodKey.split('-W');
+  const year = Number(yearStr);
+  const week = Number(weekStr);
+
+  // ISO week 1 contains the year's first Thursday.
+  // Compute Monday of the given ISO week.
+  const jan4 = new Date(year, 0, 4);
+  const jan4Day = jan4.getDay() || 7; // Mon=1 … Sun=7
+  const monday = new Date(jan4);
+  monday.setDate(jan4.getDate() - jan4Day + 1 + (week - 1) * 7);
+  return monday;
+}
+
+/**
+ * Parses a periodKey like "2026-W06" and returns the week number part ("06").
+ */
+export function getWeekNumberFromPeriodKey(periodKey: string): string {
+  return periodKey.split('-W')[1];
+}
+
+/**
+ * Parses a periodKey like "2026-W06" and returns a formatted string
+ * like "Week 06 · Feb 3 – Feb 9" (Monday–Sunday range).
+ */
+export function getWeekDateRange(periodKey: string): string {
+  const weekStr = getWeekNumberFromPeriodKey(periodKey);
+  const monday = getMondayFromPeriodKey(periodKey);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+  const monStr = fmt.format(monday);
+  const sunStr = fmt.format(sunday);
+
+  return `Week ${weekStr} · ${monStr} – ${sunStr}`;
+}
+
+const dayLabelFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: KANBAN_TZ,
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+});
+
+/** A moment's KANBAN_TZ day as weekday + date, e.g. "Wed, Jul 16". */
+export function formatDayLabel(date: Date): string {
+  return dayLabelFormatter.format(date);
+}
+
+/**
+ * Parses a periodKey like "2026-W06" and returns the Sunday of that ISO week.
+ */
+export function getSundayFromPeriodKey(periodKey: string): Date {
+  const monday = getMondayFromPeriodKey(periodKey);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return sunday;
+}
+
+/**
+ * Normalizes a Prisma DATE value (returned as UTC midnight, e.g. 2026-02-23T00:00:00Z)
+ * to a local-midnight Date with the same calendar date.
+ *
+ * Without this, a UTC midnight date renders as the previous day in negative-offset
+ * timezones (e.g. PST/UTC-8), placing a daily task on the wrong day (habit dots, sorting).
+ */
+export function normalizeForDate(date: Date): Date {
+  const dateCopy = new Date(date);
+  return new Date(
+    dateCopy.getUTCFullYear(),
+    dateCopy.getUTCMonth(),
+    dateCopy.getUTCDate(),
+  );
+}
+
+/**
+ * Formats a local-midnight date (e.g. from getTodayDate) as "YYYY-MM-DD".
+ */
+export function formatISODate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+// en-CA yields ISO order (YYYY-MM-DD)
+const kanbanDayFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: KANBAN_TZ,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** A moment's KANBAN_TZ calendar day as "YYYY-MM-DD", e.g. a task's doneAt. */
+export function formatKanbanISODate(date: Date): string {
+  return kanbanDayFormatter.format(date);
+}
+
+/**
+ * Returns true if the given date falls on a Saturday or Sunday.
+ */
+export function isWeekend(date: Date): boolean {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+/**
+ * Counts the number of weekdays (Mon–Fri) in a date range, inclusive of both ends.
+ */
+export function countWeekdaysInRange(from: Date, to: Date): number {
+  let count = 0;
+  const current = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+  while (current <= end) {
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+}
+
+/**
+ * Whether a plan periodKey still covers today. Shared by the board's
+ * end-of-period check and the matrix's stale-plan guard so the "is this
+ * ACTIVE plan's period still current?" rule has a single home.
+ */
+export function isPeriodCurrent(periodKey: string, today: Date): boolean {
+  return getISOWeekKey(today) === periodKey;
+}
+
+/**
+ * Returns the ISO week key for a given date, e.g. "2026-W07".
+ */
+export function getISOWeekKey(date: Date): string {
+  const thursday = new Date(date);
+  thursday.setDate(thursday.getDate() + 4 - (thursday.getDay() || 7));
+  const yearStart = new Date(thursday.getFullYear(), 0, 1);
+  const weekNo = Math.ceil(
+    ((thursday.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
+  );
+  return `${thursday.getFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+}

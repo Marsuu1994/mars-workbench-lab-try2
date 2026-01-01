@@ -1,0 +1,373 @@
+{
+  "Enums": {
+    "TaskType": {
+      "DAILY": "DAILY",
+      "WEEKLY": "WEEKLY",
+      "AD_HOC": "ONCE",
+      "PROJECT": "STEP"
+    },
+    "TaskTypeShort": {
+      "DAILY": "DAILY",
+      "WEEKLY": "WEEKLY"
+    },
+    "TaskStatus": {
+      "BACKLOG": "Backlog",
+      "TODO": "Todo",
+      "DONE": "Done"
+    },
+    "TaskKind": {
+      "HABIT": "Habit",
+      "PROJECT": "Project",
+      "ONE_OFF": "One-off"
+    },
+    "TaskSize": {
+      "EXTRA_SMALL": "XS",
+      "SMALL": "S",
+      "MEDIUM": "M",
+      "LARGE": "L",
+      "EXTRA_LARGE": "XL"
+    },
+    "sizeEffort": "~{hours, plural, one {# hour} other {# hours}} of effort",
+    "PlanMode": {
+      "NORMAL": "Normal",
+      "EXTREME": "Extreme"
+    },
+    "PriorityQuadrant": {
+      "DO_FIRST": "Do First",
+      "SCHEDULE": "Schedule",
+      "SQUEEZE_IN": "Squeeze In",
+      "MAYBE_LATER": "Maybe Later"
+    }
+  },
+  "Board": {
+    "Backlog": {
+      "title": "Backlog",
+      "hintDragToTodo": "Drag tasks left to Todo to start working",
+      "emptyState": "You're all caught up — no staged tasks.",
+      "openLabel": "Open backlog",
+      "closeLabel": "Close backlog",
+      "hintTapToTodo": "Tap to pull a task onto the board",
+      "pullToTodoLabel": "Todo"
+    },
+    "Header": {
+      "titlePrefix": "Kanban",
+      "titleSuffix": " Planner",
+      "planningMode": "Planning Mode"
+    },
+    "Card": {
+      "planLineDaily": "{frequency, plural, one {Daily} other {#× / day}}",
+      "planLineWeekly": "{frequency}× / week",
+      "stepContext": "{number}/{count}",
+      "Quadrant": {
+        "DO_FIRST": "Do first",
+        "SCHEDULE": "Schedule",
+        "SQUEEZE_IN": "Squeeze in",
+        "MAYBE_LATER": "Maybe later"
+      }
+    },
+    "Dashboard": {
+      "today": "Today",
+      "week": "Week",
+      "pts": "pts",
+      "avg": "avg",
+      "todayPoints": "Today Points",
+      "weekPoints": "Week Points",
+      "dailyAvg": "Daily Avg",
+      "weekProgress": "Week Progress",
+      "tasksOfTotal": "{done} of {total} tasks"
+    },
+    "Empty": {
+      "newTitle": "No active plan",
+      "newDesc": "Create a weekly plan to get started. Select templates, configure your schedule, and track your progress.",
+      "newCta": "Create Your First Plan",
+      "returningTitle": "Plan period ended",
+      "returningDesc": "Your weekly plan has wrapped up. Here's how you did:",
+      "returningPrompt": "Ready to start a new week?",
+      "returningCta": "Create New Plan",
+      "statCompleted": "Completed",
+      "statTasksDone": "Tasks done",
+      "statPointsEarned": "Points earned"
+    }
+  },
+  "Priorities": {
+    "title": "My Priorities",
+    "subtitle": "One-off things you want to do — not tied to your weekly plan",
+    "summary": "<num>{total}</num> total · <num>{tracked}</num> tracking this week",
+    "summaryMobile": "{total} total · {tracked} this week",
+    "hint": "Drag between quadrants to reprioritize · click <arrow></arrow> to move a task (track it this week, or mark it done)",
+    "hintNoPlan": "No active plan — <em>Create Plan</em> to track tasks this week · you can still mark tasks done",
+    "axisImportant": "Important",
+    "axisNotImportant": "Not Important",
+    "axisUrgent": "Urgent",
+    "axisNotUrgent": "Not Urgent",
+    "QuadrantShort": {
+      "DO_FIRST": "Do First",
+      "SCHEDULE": "Schedule",
+      "SQUEEZE_IN": "Squeeze",
+      "MAYBE_LATER": "Later"
+    },
+    "sublabelDoFirst": "Urgent & Important",
+    "sublabelSchedule": "Important",
+    "sublabelSqueezeIn": "Urgent",
+    "add": "Add",
+    "thisWeek": "This Week",
+    "moveTitle": "Move to",
+    "sendLabel": "Move task",
+    "closeLabel": "Close",
+    "noPlanNote": "No active plan yet",
+    "addTaskLabel": "Add priority task",
+    "addedToast": "Added to {quadrant}",
+    "doneToast": "Marked done",
+    "doneToastCredited": "Marked done · +{points, plural, one {# pt} other {# pts}} this week",
+    "undo": "Undo",
+    "dropHint": "{quadrant, select, DO_FIRST {Drop here — mark Urgent & Important} SCHEDULE {Drop here — mark Important} SQUEEZE_IN {Drop here — mark Urgent} MAYBE_LATER {Drop here — mark Maybe Later} other {Drop here}}",
+    "sheetPoints": "{points, plural, one {# pt} other {# pts}}"
+  },
+  "TaskModal": {
+    "header": {
+      "create": "Create Task Template",
+      "edit": "Edit Task Template",
+      "adhoc": "Add Priority Task"
+    },
+    "submit": {
+      "create": "Create Template",
+      "edit": "Save Changes",
+      "adhoc": "Add to matrix"
+    },
+    "cancel": "Cancel",
+    "adhocBanner": "Priority tasks are one-off items — they don't repeat and never expire.",
+    "titleLabel": "Title",
+    "titlePlaceholderAdhoc": "e.g. File tax report",
+    "titlePlaceholderTemplate": "e.g. Solve 3 LeetCode problems",
+    "descriptionLabel": "Description",
+    "descriptionClaudeHint": "(read by Claude when planning)",
+    "descriptionPlaceholderAdhoc": "Optional details about this task",
+    "descriptionPlaceholderTemplate": "e.g. Focus on dynamic programming and graph problems",
+    "sizeLabel": "Size",
+    "sizeWarning": "Consider splitting into smaller tasks",
+    "quadrantLabel": "Quadrant"
+  },
+  "Settings": {
+    "title": "Settings",
+    "themeSection": "Theme",
+    "themeNames": {
+      "mars-light": "Sora light",
+      "mars-dark": "Sora dark",
+      "p5-dark": "P5 dark"
+    },
+    "themeTaglines": {
+      "mars-light": "Dawn on Mars",
+      "mars-dark": "Night ops deck",
+      "p5-dark": "Calling card"
+    },
+    "signOut": "Sign out",
+    "signOutConfirm": "Sign out?",
+    "cancel": "Cancel",
+    "closeAria": "Close settings",
+    "closeBackdrop": "Close",
+    "version": "Mars Workbench v0.1.0"
+  },
+  "OAuthConsent": {
+    "title": "<strong>{client}</strong> wants to access your Mars Workbench account",
+    "signedInAs": "Signed in as <strong>{email}</strong>",
+    "capabilitiesLabel": "This will let {client}",
+    "readContextTitle": "Read your planning context",
+    "readContextDescription": "This week's plan and progress, last week's stats, and your task templates",
+    "writePlansTitle": "Create and update your weekly plans",
+    "writePlansDescription": "Add, change, or remove tasks on this week's plan",
+    "returnTo": "You'll be returned to <chip>{host}</chip>",
+    "caution": "Only allow this if you started the connection yourself.",
+    "deny": "Deny",
+    "allow": "Allow",
+    "denying": "Denying…",
+    "allowing": "Allowing…",
+    "scopes": "Scopes",
+    "invalidTitle": "This authorization link isn't valid",
+    "invalidDescription": "It may have expired or already been used. Go back to the app you were connecting and start again.",
+    "goHome": "Go to Mars Workbench"
+  },
+  "Errors": {
+    "taskNotFound": "Task not found",
+    "noActivePlan": "No active plan found",
+    "templateNotFound": "Template not found",
+    "projectNotFound": "Project not found",
+    "stepNotFound": "Step not found",
+    "stepLimitReached": "A project holds at most 50 steps",
+    "generic": "Something went wrong, please try again.",
+    "invalidCursor": "Invalid feed cursor"
+  },
+  "Validation": {
+    "frequencyPositive": "Frequency must be a positive integer",
+    "selectAtLeastOne": "Select at least one template or one-off task",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description is required",
+    "atLeastOneField": "At least one field must be provided",
+    "contentRequired": "Content is required",
+    "contentTooLong": "Content must be 10,000 characters or fewer"
+  },
+  "Dump": {
+    "title": "Dump",
+    "subtitle": "Get it out of your head — noise, worries, ideas",
+    "entryCount": "{count, plural, one {entry} other {entries}}",
+    "placeholder": "What's on your mind?",
+    "dumpButton": "Dump",
+    "composerHint": "to dump · Enter for a new line",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "emptyTitle": "Nothing here yet",
+    "emptyDesc": "Write anything — a thought, a worry, an idea. Dump it and move on."
+  },
+  "Metadata": {
+    "title": "Mars Workbench",
+    "description": "Agile-like personal kanban planner"
+  },
+  "Plan": {
+    "createTitle": "Create Weekly Plan",
+    "updateTitle": "Update Weekly Plan",
+    "createSubtitle": "Set up your task templates and start a new week.",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "e.g. Focus on interview prep this week",
+    "planModeLabel": "Plan Mode",
+    "normalModeShortDesc": "Weekdays only",
+    "extremeModeShortDesc": "Every day incl. weekends",
+    "taskTemplatesLabel": "Task Templates",
+    "newTemplateButton": "+ New Template",
+    "noTemplates": "No templates yet. Create a template to get started.",
+    "adhocTasksLabel": "One-off Tasks",
+    "taskCount": "{count, plural, one {# task} other {# tasks}}",
+    "projectStepsLabel": "Project Steps",
+    "stepCount": "{count, plural, one {# step} other {# steps}}",
+    "returnsToMatrix": "Priorities matrix",
+    "returnsToProject": "{project}, step {number}",
+    "summary": "{templateCount, plural, one {# template} other {# templates}} selected",
+    "summaryWithAdhoc": "{templateCount, plural, one {# template} other {# templates}}, {adhocCount, plural, one {# one-off task} other {# one-off tasks}} selected",
+    "summaryWithSteps": "{templateCount, plural, one {# template} other {# templates}}, {stepCount, plural, one {# project step} other {# project steps}} selected",
+    "summaryWithAdhocAndSteps": "{templateCount, plural, one {# template} other {# templates}}, {adhocCount, plural, one {# one-off task} other {# one-off tasks}}, {stepCount, plural, one {# project step} other {# project steps}} selected",
+    "cancel": "Cancel",
+    "startWeek": "Start Week",
+    "updatePlan": "Update Plan",
+    "editTemplateTitle": "Edit template (title, description, points)",
+    "typeLabel": "Type",
+    "freqLabel": "Freq",
+    "freqDecrease": "Decrease frequency",
+    "freqIncrease": "Increase frequency",
+    "perDayUnit": "/ day",
+    "perWeekUnit": "/ week"
+  },
+  "Review": {
+    "title": "Review Plan Changes",
+    "dailyLabel": "Daily",
+    "weeklyLabel": "Weekly",
+    "freqPerDay": "{count}× per day",
+    "freqPerWeek": "{count}× per week",
+    "normalModeDescription": "Daily tasks on weekdays only",
+    "extremeModeDescription": "Daily tasks every day including weekends",
+    "addedHeading": "Added",
+    "removedHeading": "Removed",
+    "modifiedHeading": "Modified",
+    "taskCount": "{count, plural, one {# task} other {# tasks}}",
+    "addedNote": "New {type} tasks will be generated starting today",
+    "removedNoteWithTasks": "{count, plural, one {# unfinished task} other {# unfinished tasks}} will be deleted from the board",
+    "removedNoteNoTasks": "No active tasks on the board",
+    "modifiedNote": "{hasTasks, select, yes {Existing unfinished tasks deleted} other {No active tasks to remove}} — {count, plural, one {# new {type} instance} other {# new {type} instances}} will be generated",
+    "adhocHeading": "One-off Tasks",
+    "addedToBoard": "Added to board",
+    "adhocAddedNote": "Will appear on the board",
+    "removedFromBoard": "Removed from board",
+    "adhocRemovedNote": "Will return to the Priorities matrix",
+    "stepsHeading": "Project Steps",
+    "stepRemovedNote": "Will return to {project} — still step {number}",
+    "modeChangedHeading": "Mode Changed",
+    "modeChangedNote": "{description} — change applies to future daily tasks only",
+    "globalNote": "Done and Expired tasks are never affected by any change — your completed work is always preserved.",
+    "cancel": "Cancel",
+    "confirmButton": "Confirm & Regenerate"
+  },
+  "Projects": {
+    "title": "Projects",
+    "newProject": "New project",
+    "Empty": {
+      "title": "No projects yet",
+      "description": "A project is a goal and a path of small steps — like a course, one lecture at a time.",
+      "claudeHint": "or ask Claude to draft one, steps included",
+      "noActiveTitle": "No active projects",
+      "noActiveDescription": "Every project is archived — unarchive one, or start a new one."
+    },
+    "List": {
+      "progress": "{done}/{total}",
+      "next": "Next: <step>{title}</step>",
+      "allStepsDone": "All steps done",
+      "noStepsYet": "No steps yet",
+      "thisWeekCount": "{count} this week",
+      "archived": "Archived",
+      "archivedRow": "{title} · {done}/{total}",
+      "unarchive": "Unarchive"
+    },
+    "Detail": {
+      "allProjects": "All projects",
+      "edit": "Edit",
+      "stepsProgress": "{done} of {total, plural, one {# step} other {# steps}}",
+      "addStep": "Add step",
+      "addFirstStep": "Add the first step",
+      "noStepsTitle": "No steps yet",
+      "noStepsDescription": "A project is a path of small steps, about 1–3 hours each.",
+      "allStepsDoneTitle": "All steps done",
+      "allStepsDoneDescription": "Add the next steps below, or archive the project when you're finished.",
+      "archive": "Archive",
+      "noPlan": "No plan for this week yet — + This week needs one.",
+      "createPlan": "Create plan"
+    },
+    "Step": {
+      "thisWeekTodo": "This week · todo",
+      "thisWeekBacklog": "This week · backlog",
+      "lastWeekTodo": "Last week · todo",
+      "lastWeekBacklog": "Last week · backlog",
+      "todo": "todo",
+      "backlog": "backlog",
+      "lastWeek": "Last week",
+      "schedule": "This week",
+      "scheduleShort": "Week",
+      "scheduleLabel": "Put on this week",
+      "takeBackLabel": "Take off this week",
+      "editLabel": "Edit step"
+    },
+    "ProjectModal": {
+      "createTitle": "New Project",
+      "editTitle": "Edit Project",
+      "banner": "Projects are a goal plus ordered steps — steps go onto a week one at a time and never expire.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Biomedical course",
+      "goalLabel": "Goal",
+      "optional": "(optional)",
+      "goalPlaceholder": "What does done look like?",
+      "cancel": "Cancel",
+      "create": "Create project",
+      "save": "Save changes",
+      "archive": "Archive",
+      "archiveConfirm": "Archive",
+      "archivePrompt": "Archive {title}?",
+      "archiveDetail": "It moves to Archived; its unfinished steps leave this week.",
+      "keep": "Keep"
+    },
+    "StepModal": {
+      "addTitle": "Add Step",
+      "editTitle": "Edit Step",
+      "subtitleAdd": "{project} · becomes step {number}",
+      "subtitleEdit": "{project} · step {number}",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Lecture 4 — Cell signaling",
+      "descriptionLabel": "Description",
+      "optional": "(optional)",
+      "descriptionPlaceholder": "A link, notes, or what done looks like",
+      "sizeLabel": "Size",
+      "sizeWarning": "Consider splitting into smaller steps",
+      "cancel": "Cancel",
+      "add": "Add step",
+      "save": "Save changes",
+      "delete": "Delete step",
+      "deleteConfirm": "Delete step?"
+    }
+  }
+}

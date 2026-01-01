@@ -1,0 +1,121 @@
+import {prisma} from '@/lib/prisma';
+import type {Prisma, TaskSize} from '@/generated/prisma/client';
+
+export type TaskTemplateItem = {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  size: TaskSize;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+const taskTemplateSelect = {
+  id: true,
+  userId: true,
+  title: true,
+  description: true,
+  size: true,
+  isArchived: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+/**
+ * Get all of a user's non-archived task templates ordered by most recently created
+ */
+export async function getTaskTemplates(
+  userId: string,
+): Promise<TaskTemplateItem[]> {
+  return prisma.taskTemplate.findMany({
+    where: {userId, isArchived: false},
+    orderBy: {createdAt: 'desc'},
+    select: taskTemplateSelect,
+  });
+}
+
+/**
+ * The subset of `ids` that are templates owned by the user (archived included).
+ * Callers must pass well-formed UUIDs — the id column is `uuid`.
+ */
+export async function getOwnedTemplateIds(
+  userId: string,
+  ids: string[],
+  tx?: Prisma.TransactionClient,
+): Promise<Set<string>> {
+  if (ids.length === 0) return new Set();
+  const db = tx ?? prisma;
+  const rows = await db.taskTemplate.findMany({
+    where: {id: {in: ids}, userId},
+    select: {id: true},
+  });
+  return new Set(rows.map(row => row.id));
+}
+
+/**
+ * Get a single task template by ID, scoped to the owner
+ */
+export async function getTaskTemplateById(
+  userId: string,
+  id: string,
+): Promise<TaskTemplateItem | null> {
+  return prisma.taskTemplate.findFirst({
+    where: {id, userId},
+    select: taskTemplateSelect,
+  });
+}
+
+/**
+ * Create a new task template for a user
+ */
+export async function createTaskTemplate(
+  userId: string,
+  data: {
+    title: string;
+    description: string;
+    size: TaskSize;
+  },
+): Promise<TaskTemplateItem> {
+  return prisma.taskTemplate.create({
+    data: {...data, userId},
+    select: taskTemplateSelect,
+  });
+}
+
+/**
+ * Batch-create task templates and return their ids. On PostgreSQL the returned
+ * rows preserve input order (single INSERT … RETURNING), so callers can zip ids
+ * back to the input array by index.
+ */
+export async function createManyTaskTemplates(
+  data: {userId: string; title: string; description: string; size: TaskSize}[],
+  tx?: Prisma.TransactionClient,
+): Promise<{id: string}[]> {
+  const db = tx ?? prisma;
+  return db.taskTemplate.createManyAndReturn({
+    data,
+    select: {id: true},
+  });
+}
+
+/**
+ * Update an existing task template, scoped to the owner.
+ * Uses updateMany so userId can be part of the filter; returns the count so
+ * callers can treat 0 as not-found/forbidden.
+ */
+export async function updateTaskTemplate(
+  userId: string,
+  id: string,
+  data: {
+    title?: string;
+    description?: string;
+    size?: TaskSize;
+  },
+): Promise<{count: number}> {
+  return prisma.taskTemplate.updateMany({
+    where: {id, userId},
+    data,
+  });
+}

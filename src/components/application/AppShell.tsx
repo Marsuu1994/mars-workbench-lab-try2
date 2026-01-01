@@ -1,0 +1,90 @@
+'use client';
+
+import {usePathname} from 'next/navigation';
+import {SettingsSheet} from '@/components/domain/auth/SettingsSheet';
+import {useSidebarStore} from '@/store/sidebarStore';
+import {useSettingsStore} from '@/store/settingsStore';
+import type {ThemeName} from '@/utils/theme';
+import {AppSidebar} from './AppSidebar';
+import {BottomTabBar} from './BottomTabBar';
+
+interface AppShellProps {
+  user: {name: string; email: string} | null;
+  activePlanId: string | null;
+  /** Server-resolved theme cookie (feeds the settings theme picker). */
+  theme: ThemeName;
+  children: React.ReactNode;
+}
+
+/**
+ * Route prefixes that render without the app sidebar / bottom tab bar: the
+ * Design Console, and the OAuth consent page (a signed-in user authorizing
+ * an external client, not navigating the app).
+ */
+const CHROMELESS_PREFIXES = ['/design', '/oauth'];
+
+/**
+ * Routes whose page owns all scrolling, so <main> must not be a scroll
+ * container there — otherwise the page header scrolls away with <main> and
+ * mobile shows two scrollbars. Board/priorities/projects also need it
+ * because @hello-pangea/dnd Droppables support only one scroll parent. The
+ * plans layout keeps its header fixed and scrolls the form body itself; the
+ * Projects page scrolls its list and detail panes on their own.
+ */
+const SELF_SCROLLING_ROUTES = ['/kanban', '/kanban/priorities', '/kanban/dump'];
+const SELF_SCROLLING_PREFIXES = ['/kanban/plans', '/kanban/projects'];
+
+/**
+ * Wraps page content in the app shell (sidebar + bottom tab bar), except on
+ * routes listed in CHROMELESS_PREFIXES, which render standalone. The shell
+ * reads the route and the chrome's store state once and hands them to the
+ * sidebar and dock as props, so the gallery renders those with fixtures.
+ */
+export const AppShell = ({
+  user,
+  activePlanId,
+  theme,
+  children,
+}: AppShellProps) => {
+  const pathname = usePathname();
+  const isSidebarCollapsed = useSidebarStore(state => state.isCollapsed);
+  const isSettingsOpen = useSettingsStore(state => state.isOpen);
+  const isChromeless = CHROMELESS_PREFIXES.some(prefix =>
+    pathname.startsWith(prefix),
+  );
+  const isSelfScrolling =
+    SELF_SCROLLING_ROUTES.includes(pathname) ||
+    SELF_SCROLLING_PREFIXES.some(prefix => pathname.startsWith(prefix));
+
+  if (isChromeless) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className="fx-shell-bg flex h-dvh pt-[env(safe-area-inset-top)]">
+      <AppSidebar
+        user={user}
+        activePlanId={activePlanId}
+        pathname={pathname}
+        collapsed={isSidebarCollapsed}
+      />
+      {/* Mobile bottom padding matches the fixed daisyUI dock exactly:
+          4rem + env(safe-area-inset-bottom) — see .dock in daisyUI. */}
+      <main
+        className={`flex-1 min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 ${
+          isSelfScrolling ? 'overflow-hidden' : 'overflow-auto'
+        }`}
+      >
+        {children}
+      </main>
+      <BottomTabBar
+        user={user}
+        activePlanId={activePlanId}
+        pathname={pathname}
+        settingsOpen={isSettingsOpen}
+        className="md:hidden"
+      />
+      <SettingsSheet user={user} initialTheme={theme} />
+    </div>
+  );
+};

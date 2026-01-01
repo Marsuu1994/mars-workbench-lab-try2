@@ -1,0 +1,137 @@
+'use client';
+
+import {useEffect, useRef, useState, type ReactNode} from 'react';
+import {Droppable} from '@hello-pangea/dnd';
+import {useTranslations} from 'next-intl';
+import {
+  InboxStackIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowLeftIcon,
+} from '@heroicons/react/24/outline';
+import {TaskStatus} from '@/utils/enums';
+import {BacklogCountBadge} from './BacklogCountBadge';
+
+interface DesktopBacklogProps {
+  /** Staged cards — the count pill and the empty state */
+  count: number;
+  /** The staged cards, rendered by KanbanBoard */
+  children: ReactNode;
+}
+
+/**
+ * Desktop-only collapsible right-edge backlog that stages BACKLOG tasks. The
+ * user drags a card onto the Todo column to pull it onto the board
+ * (BACKLOG → TODO). Rendered inside KanbanBoard's DragDropContext, which also
+ * renders the cards into it.
+ */
+export const DesktopBacklog = ({count, children}: DesktopBacklogProps) => {
+  const t = useTranslations('Board.Backlog');
+  const [isOpen, setIsOpen] = useState(false);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  // Set by the toggles, so the first render leaves focus where it is
+  const hasToggledRef = useRef(false);
+
+  // The side that fades out turns inert, so focus moves to the toggle that
+  // just appeared — once committed, since it is inert until then
+  useEffect(() => {
+    if (!hasToggledRef.current) return;
+    (isOpen ? closeButtonRef : openButtonRef).current?.focus();
+  }, [isOpen]);
+
+  const toggle = (nextIsOpen: boolean) => {
+    hasToggledRef.current = true;
+    setIsOpen(nextIsOpen);
+  };
+
+  const countPill = <BacklogCountBadge count={count} />;
+
+  const renderCollapsed = () => (
+    <button
+      ref={openButtonRef}
+      onClick={() => toggle(true)}
+      inert={isOpen}
+      className={`absolute inset-y-0 left-0 w-12 bg-base-200/30 flex flex-col items-center gap-3.5 pt-4 cursor-pointer transition-opacity duration-200 hover:bg-base-300 ${
+        isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+      title={t('openLabel')}
+    >
+      <ChevronLeftIcon className="size-4 text-base-content/40" />
+      {countPill}
+      <span className="[writing-mode:vertical-rl] rotate-180 text-sm font-semibold text-base-content/60 tracking-wide">
+        {t('title')}
+      </span>
+    </button>
+  );
+
+  const renderHeader = () => (
+    <div className="px-4 py-3 border-b border-base-content/10 bg-base-200/30 flex items-center justify-between flex-shrink-0">
+      <div className="flex items-center gap-2 text-sm font-bold">
+        <InboxStackIcon className="size-[18px] text-primary" />
+        {t('title')}
+        {countPill}
+      </div>
+      <button
+        ref={closeButtonRef}
+        onClick={() => toggle(false)}
+        className="size-7 rounded-md flex items-center justify-center text-base-content/60 hover:bg-base-300 hover:text-base-content cursor-pointer"
+        title={t('closeLabel')}
+      >
+        <ChevronRightIcon className="size-4" />
+      </button>
+    </div>
+  );
+
+  const renderHint = () => (
+    <div className="px-4 py-2.5 border-b border-base-content/10 flex items-center gap-1.5 text-xs text-base-content/50 flex-shrink-0">
+      <ArrowLeftIcon className="size-3.5 text-primary flex-shrink-0" />
+      {t('hintDragToTodo')}
+    </div>
+  );
+
+  const renderBody = () => (
+    // isDropDisabled: cards only leave the backlog. Without it, the collapsed
+    // backlog's invisible panel (kept mounted for the cross-fade, overlapping
+    // the Done column) wins dnd's geometric hit-test and steals Done drops.
+    <Droppable droppableId={TaskStatus.BACKLOG} isDropDisabled>
+      {provided => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className="flex-1 overflow-y-auto p-3 flex flex-col gap-2"
+        >
+          {count === 0 && (
+            <p className="text-center text-xs text-base-content/40 mt-6 px-4">
+              {t('emptyState')}
+            </p>
+          )}
+          {children}
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
+  );
+
+  return (
+    <div
+      className={`hidden md:block relative h-full flex-shrink-0 overflow-hidden bg-base-100/10 border-l border-base-content/10 transition-[width] duration-200 ${
+        isOpen ? 'w-[300px]' : 'w-12'
+      }`}
+    >
+      {/* Both states stay mounted and cross-fade so width + content animate
+          together — instant content swaps would otherwise read as a jump. */}
+      {renderCollapsed()}
+      <div
+        inert={!isOpen}
+        className={`absolute inset-y-0 right-0 w-[300px] flex flex-col bg-base-100/10 transition-opacity duration-200 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {renderHeader()}
+        {renderHint()}
+        {renderBody()}
+      </div>
+    </div>
+  );
+};

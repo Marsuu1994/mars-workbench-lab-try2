@@ -1,0 +1,661 @@
+'use client';
+
+import {useState} from 'react';
+import {
+  InboxStackIcon,
+  CheckIcon,
+  SignalIcon,
+  MapIcon,
+  CheckCircleIcon,
+  InformationCircleIcon,
+  PlusIcon,
+  FlagIcon,
+  ArchiveBoxIcon,
+  ArrowRightStartOnRectangleIcon,
+} from '@heroicons/react/24/outline';
+
+import {Pill} from '@/components/ui/Pill';
+import {EmptyState} from '@/components/ui/EmptyState';
+import {TabBar} from '@/components/ui/TabBar';
+import {Banner} from '@/components/ui/Banner';
+import {InlineConfirmButton} from '@/components/ui/InlineConfirmButton';
+import {ModalFormFooter} from '@/components/ui/form/ModalFormFooter';
+import {StatBlock} from '@/components/ui/StatBlock';
+import {ProgressBar} from '@/components/ui/ProgressBar';
+import {SectionLabel} from '@/components/ui/SectionLabel';
+import {FieldRow} from '@/components/ui/form/FieldRow';
+import {ChoicePills} from '@/components/ui/form/ChoicePills';
+import {Stepper} from '@/components/ui/form/Stepper';
+import {SubmitButton} from '@/components/ui/form/SubmitButton';
+import {FormErrorAlert} from '@/components/ui/form/FormErrorAlert';
+import {ConfirmButton} from '@/components/ui/ConfirmButton';
+import {ConfirmBar} from '@/components/ui/ConfirmBar';
+import {OverlayShell} from '@/components/ui/overlay/OverlayShell';
+import {OverlayHeader} from '@/components/ui/overlay/OverlayHeader';
+import {Popover} from '@/components/ui/overlay/Popover';
+import {Toast} from '@/components/ui/Toast';
+import {Play} from '../Play';
+
+import {Zone, Section, Variant, Row} from '../GalleryParts';
+import {
+  PILL_COLORS,
+  PILL_SIZES,
+  EMPTY_STATE_DEMO_TITLE,
+  EMPTY_STATE_DEMO_DESC,
+  EMPTY_STATE_DEMO_CTA,
+  TABBAR_DEMO_LABELS,
+  EMPTY_STATE_INLINE_DEMO_TITLE,
+  EMPTY_STATE_INLINE_DEMO_DESC,
+  EMPTY_STATE_INLINE_DEMO_CTA,
+  BANNER_DEMO_INTRO,
+  BANNER_DEMO_DONE_TITLE,
+  BANNER_DEMO_DONE,
+  BANNER_DEMO_ACTION,
+  BANNER_DEMO_SAVED,
+  BANNER_DEMO_WARNING,
+  BANNER_DEMO_LINK,
+  INLINE_CONFIRM_DEMO_LABEL,
+  INLINE_CONFIRM_DEMO_CONFIRM,
+  CONFIRM_BAR_DEMO_PROMPT,
+  CONFIRM_BAR_DEMO_CANCEL,
+  CONFIRM_BAR_DEMO_CONFIRM,
+  CONFIRM_BAR_DEMO_DETAIL_PROMPT,
+  CONFIRM_BAR_DEMO_DETAIL,
+  CONFIRM_BAR_DEMO_DETAIL_CANCEL,
+  CONFIRM_BAR_DEMO_DETAIL_CONFIRM,
+  FOOTER_DEMO_CANCEL,
+  FOOTER_DEMO_SUBMIT,
+  FOOTER_DEMO_ERROR,
+  HEADER_DEMO_SUBTITLE_TITLE,
+  HEADER_DEMO_SUBTITLE,
+  POPOVER_DEMO_ANCHOR,
+  POPOVER_DEMO_TITLE,
+  POPOVER_DEMO_BODY,
+  TOAST_DEMO_MESSAGE,
+  TOAST_DEMO_ACTION,
+  TOAST_DEMO_PLAIN,
+  TOAST_DEMO_DURATION_MS,
+  HEADER_DEMO_TITLE,
+  HEADER_DEMO_CLOSE,
+  HEADER_DEMO_BADGE,
+  SHELL_DEMO_OPEN,
+  SHELL_DEMO_TITLE,
+  SHELL_DEMO_BODY,
+  SHELL_DEMO_CLOSE_ACTION,
+  FORM_DEMO_FIELD_LABEL,
+  FORM_DEMO_FIELD_HINT,
+  FORM_DEMO_FIELD_PLACEHOLDER,
+  FORM_DEMO_CHOICE_LABEL,
+  FORM_DEMO_CHOICES,
+  FORM_DEMO_STEP_LABEL,
+  FORM_DEMO_STEP_DEC,
+  FORM_DEMO_STEP_INC,
+  FORM_DEMO_STEP_MIN,
+  FORM_DEMO_STEP_MAX,
+  FORM_DEMO_SUBMIT,
+  FORM_DEMO_ERROR,
+  CONTENT_STATS,
+  CONTENT_BARS,
+  CONTENT_SECTION_LABELS,
+  CONFIRM_DEMO_LABEL,
+  CONFIRM_DEMO_PROMPT,
+  CONFIRM_DEMO_CONFIRM,
+  CONFIRM_DEMO_CANCEL,
+} from '../constants';
+
+/** src/components/ui/ — generic primitives with zero domain imports. */
+export const UiTab = () => {
+  const [shellOpen, setShellOpen] = useState(false);
+  const [choice, setChoice] = useState<string>(FORM_DEMO_CHOICES[0].value);
+  const [freq, setFreq] = useState(FORM_DEMO_STEP_MIN);
+  const [demoTab, setDemoTab] = useState(0);
+
+  const renderPills = () => (
+    <Section
+      title="Pill"
+      description="The one tinted-pill primitive: fx-chip recipe + text token + size preset. Every badge in the app composes this — never hand-roll a pill."
+    >
+      <div className="flex flex-col gap-6">
+        {PILL_SIZES.map(size => (
+          <Variant key={size} label={`size: ${size}`}>
+            <Row>
+              {PILL_COLORS.map(color => (
+                <Pill key={color} color={color} size={size}>
+                  {color}
+                </Pill>
+              ))}
+            </Row>
+          </Variant>
+        ))}
+        <Variant label="responsive (size=xs, mdSize=sm) + shape override">
+          <Row>
+            <Pill color="info" size="xs" mdSize="sm">
+              responsive
+            </Pill>
+            <Pill color="success" size="md" className="rounded-full">
+              rounded-full
+            </Pill>
+          </Row>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderFormKit = () => (
+    <Section
+      title="Form kit"
+      description="The canonical form building blocks: FieldRow (label + required + hint), ChoicePills (mutually-exclusive group), Stepper (−/+), SubmitButton (spinner swap), FormErrorAlert."
+    >
+      <div className="flex flex-col gap-5">
+        <FieldRow
+          label={FORM_DEMO_FIELD_LABEL}
+          required
+          labelHint={FORM_DEMO_FIELD_HINT}
+        >
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            placeholder={FORM_DEMO_FIELD_PLACEHOLDER}
+          />
+        </FieldRow>
+
+        <FieldRow label={FORM_DEMO_CHOICE_LABEL} required>
+          <ChoicePills
+            layout="fill"
+            value={choice}
+            onChange={setChoice}
+            options={FORM_DEMO_CHOICES.map(c => ({
+              value: c.value,
+              label: c.label,
+            }))}
+            pillClass="flex items-center justify-center py-2 rounded-full text-xs font-bold"
+            selectedClass="bg-secondary/10 border-secondary text-secondary"
+            unselectedClass="bg-base-200 border-base-300 text-base-content/50 hover:border-base-content/30"
+          />
+        </FieldRow>
+
+        <Row>
+          <Variant label={FORM_DEMO_STEP_LABEL}>
+            <Stepper
+              value={freq}
+              min={FORM_DEMO_STEP_MIN}
+              max={FORM_DEMO_STEP_MAX}
+              onChange={setFreq}
+              decreaseLabel={FORM_DEMO_STEP_DEC}
+              increaseLabel={FORM_DEMO_STEP_INC}
+            />
+          </Variant>
+          <Variant label="SubmitButton (idle / submitting)">
+            <Row>
+              <SubmitButton
+                isSubmitting={false}
+                icon={<CheckIcon className="size-4" />}
+              >
+                {FORM_DEMO_SUBMIT}
+              </SubmitButton>
+              <SubmitButton isSubmitting>{FORM_DEMO_SUBMIT}</SubmitButton>
+            </Row>
+          </Variant>
+        </Row>
+
+        <Variant label="FormErrorAlert">
+          <FormErrorAlert error={FORM_DEMO_ERROR} className="w-full max-w-md" />
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderContentBlocks = () => (
+    <Section
+      title="Content blocks"
+      description="StatBlock (telemetry value + micro-label), ProgressBar (linear track + fill), SectionLabel (mono uppercase header)."
+    >
+      <div className="flex flex-col gap-6">
+        <Variant label="StatBlock">
+          <Row>
+            {CONTENT_STATS.map(stat => (
+              <StatBlock
+                key={stat.label}
+                value={stat.value}
+                valueClassName={stat.valueClass}
+                label={stat.label}
+              />
+            ))}
+          </Row>
+        </Variant>
+        <Variant label="ProgressBar">
+          <div className="flex w-72 flex-col gap-3">
+            {CONTENT_BARS.map(bar => (
+              <div key={bar.label} className="flex items-center gap-2">
+                <SectionLabel className="w-20 shrink-0">
+                  {bar.label}
+                </SectionLabel>
+                <ProgressBar
+                  value={bar.value}
+                  fillClassName={bar.fill}
+                  className="flex-1"
+                />
+              </div>
+            ))}
+          </div>
+        </Variant>
+        <Variant label="SectionLabel (muted / bright)">
+          <Row>
+            {CONTENT_SECTION_LABELS.map(label => (
+              <SectionLabel key={label}>{label}</SectionLabel>
+            ))}
+            <SectionLabel bright>Bright</SectionLabel>
+          </Row>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderEmptyState = () => (
+    <Section
+      title="EmptyState"
+      description="Generic centered zero state: icon + title + description + CTA. page — a whole screen's zero state (EmptyBoard composes it with board copy and the recap stats); inline — a dashed box for an empty list inside a section."
+    >
+      <div className="flex flex-col gap-6">
+        <Variant label="page">
+          <div className="w-full rounded-lg border border-base-content/10 bg-base-200/40 py-10">
+            <EmptyState
+              icon={<SignalIcon className="size-14 text-base-content/20" />}
+              title={EMPTY_STATE_DEMO_TITLE}
+              description={EMPTY_STATE_DEMO_DESC}
+              action={
+                <button type="button" className="btn btn-primary btn-sm">
+                  {EMPTY_STATE_DEMO_CTA}
+                </button>
+              }
+            />
+          </div>
+        </Variant>
+        <Variant label="inline">
+          <EmptyState
+            variant="inline"
+            className="w-full max-w-md"
+            icon={<MapIcon className="size-5" />}
+            title={EMPTY_STATE_INLINE_DEMO_TITLE}
+            description={EMPTY_STATE_INLINE_DEMO_DESC}
+            action={
+              <button type="button" className="btn btn-primary btn-sm">
+                <PlusIcon className="size-4" />
+                {EMPTY_STATE_INLINE_DEMO_CTA}
+              </button>
+            }
+          />
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderTabBar = () => (
+    <Section
+      title="TabBar"
+      description="The chip-row tab strip behind the gallery layers and scenario states — the bar only; panels stay with the caller."
+    >
+      <TabBar
+        ariaLabel="TabBar demo"
+        labels={TABBAR_DEMO_LABELS}
+        activeIndex={demoTab}
+        onChange={setDemoTab}
+      />
+    </Section>
+  );
+
+  const renderBanner = () => (
+    <Section
+      title="Banner"
+      description="An inline message on a wash, one per tone. Inside a form it sits plain (what the form creates); on a page it is outlined, with an optional action at the end. Neutral takes the surface of the cards around it — a quiet next step, with only its icon coloured."
+    >
+      <div className="flex max-w-xl flex-col gap-4">
+        <Variant label="secondary · plain (form intro)">
+          <Banner
+            tone="secondary"
+            className="w-full"
+            icon={<MapIcon className="size-4.5 shrink-0" />}
+          >
+            {BANNER_DEMO_INTRO}
+          </Banner>
+        </Variant>
+        <Variant label="neutral · outlined + action">
+          <Banner
+            tone="neutral"
+            outlined
+            className="w-full gap-3 px-3.5 py-3"
+            icon={<FlagIcon className="size-5 shrink-0 text-success" />}
+            action={
+              <button type="button" className="btn btn-sm shrink-0">
+                <ArchiveBoxIcon className="size-3.5" />
+                {BANNER_DEMO_ACTION}
+              </button>
+            }
+          >
+            <span className="block text-[13.5px] font-semibold text-base-content">
+              {BANNER_DEMO_DONE_TITLE}
+            </span>
+            <span className="text-[12.5px]">{BANNER_DEMO_DONE}</span>
+          </Banner>
+        </Variant>
+        <Variant label="success · outlined">
+          <Banner
+            tone="success"
+            outlined
+            className="w-full"
+            icon={<CheckCircleIcon className="size-4.5 shrink-0" />}
+          >
+            {BANNER_DEMO_SAVED}
+          </Banner>
+        </Variant>
+        <Variant label="warning · outlined + link">
+          <Banner
+            tone="warning"
+            outlined
+            className="w-full"
+            icon={<InformationCircleIcon className="size-4.5 shrink-0" />}
+            action={
+              <a href="#create-plan" className="font-semibold underline">
+                {BANNER_DEMO_LINK}
+              </a>
+            }
+          >
+            {BANNER_DEMO_WARNING}
+          </Banner>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderInlineConfirmButton = () => (
+    <Section
+      title="InlineConfirmButton"
+      description="Two-click destructive button for a form footer: outlined at rest (full width below md), solid with its confirm label once armed; the second click runs it. No cancel — leaving is the cancel. For a confirm that says what happens, use ConfirmBar. The armed specimen is reached by a play step that clicks once."
+    >
+      <Row>
+        <Variant label="rest (click to arm)">
+          <InlineConfirmButton
+            label={INLINE_CONFIRM_DEMO_LABEL}
+            confirmLabel={INLINE_CONFIRM_DEMO_CONFIRM}
+            onConfirm={() => undefined}
+          />
+        </Variant>
+        <Variant label="armed (play)">
+          <Play steps={[{click: {name: INLINE_CONFIRM_DEMO_LABEL}}]}>
+            <InlineConfirmButton
+              label={INLINE_CONFIRM_DEMO_LABEL}
+              confirmLabel={INLINE_CONFIRM_DEMO_CONFIRM}
+              onConfirm={() => undefined}
+            />
+          </Play>
+        </Variant>
+      </Row>
+    </Section>
+  );
+
+  const renderConfirmBar = () => (
+    <Section
+      title="ConfirmBar"
+      description="A destructive action's confirm row on the error channel: the question — and, when it isn't obvious, what happens — with Cancel and Confirm at the end. With a detail line, below md the icon and question share a row, the detail sits under the question and the buttons take the last row. ConfirmButton's armed state, and the row a form footer turns into while its destructive action awaits a yes (Edit Project's Archive)."
+    >
+      <div className="flex max-w-lg flex-col gap-4">
+        <Variant label="prompt only (ConfirmButton armed)">
+          <ConfirmBar
+            icon={<ArrowRightStartOnRectangleIcon className="size-[18px]" />}
+            prompt={CONFIRM_BAR_DEMO_PROMPT}
+            cancelLabel={CONFIRM_BAR_DEMO_CANCEL}
+            confirmLabel={CONFIRM_BAR_DEMO_CONFIRM}
+            onCancel={() => undefined}
+            onConfirm={() => undefined}
+          />
+        </Variant>
+        <Variant label="prompt + detail (a form footer armed)">
+          <ConfirmBar
+            icon={<ArchiveBoxIcon className="size-5 shrink-0" />}
+            prompt={CONFIRM_BAR_DEMO_DETAIL_PROMPT}
+            detail={CONFIRM_BAR_DEMO_DETAIL}
+            cancelLabel={CONFIRM_BAR_DEMO_DETAIL_CANCEL}
+            confirmLabel={CONFIRM_BAR_DEMO_DETAIL_CONFIRM}
+            onCancel={() => undefined}
+            onConfirm={() => undefined}
+          />
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderModalFormFooter = () => (
+    <Section
+      title="ModalFormFooter"
+      description="A modal form's footer: the submit error, then Cancel + submit, with an optional destructive control. From md everything sits on one row, the destructive control on the left. Below md, Cancel (outlined) and submit share a row 1 : 2 and the destructive control takes its own full-width row under a hairline, away from the primary action."
+    >
+      <div className="flex max-w-lg flex-col gap-6">
+        <Variant label="plain">
+          <div className="w-full">
+            <ModalFormFooter
+              error={null}
+              isSubmitting={false}
+              onCancel={() => undefined}
+              cancelLabel={FOOTER_DEMO_CANCEL}
+              submitLabel={FOOTER_DEMO_SUBMIT}
+              submitIcon={<CheckIcon className="size-4" />}
+            />
+          </div>
+        </Variant>
+        <Variant label="leading confirm + error">
+          <div className="w-full">
+            <ModalFormFooter
+              error={FOOTER_DEMO_ERROR}
+              isSubmitting={false}
+              onCancel={() => undefined}
+              cancelLabel={FOOTER_DEMO_CANCEL}
+              submitLabel={FOOTER_DEMO_SUBMIT}
+              submitIcon={<CheckIcon className="size-4" />}
+              leading={
+                <InlineConfirmButton
+                  label={INLINE_CONFIRM_DEMO_LABEL}
+                  confirmLabel={INLINE_CONFIRM_DEMO_CONFIRM}
+                  onConfirm={() => undefined}
+                />
+              }
+            />
+          </div>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderModalShell = () => (
+    <Section
+      title="OverlayShell"
+      description="The one dialog shell behind every modal: responsive sheet-to-center morph, HUD panel chrome (fx-panel-solid + fx-boot-in), optional reticle corners, explicit dismissOnBackdrop contract."
+    >
+      <button
+        type="button"
+        className="btn btn-primary btn-sm"
+        onClick={() => setShellOpen(true)}
+      >
+        {SHELL_DEMO_OPEN}
+      </button>
+      <OverlayShell
+        variant="responsive"
+        isOpen={shellOpen}
+        onClose={() => setShellOpen(false)}
+        dismissOnBackdrop={false}
+        corners
+        boxClassName="max-w-lg pt-4 md:pt-6"
+      >
+        <h3 className="text-lg font-semibold">{SHELL_DEMO_TITLE}</h3>
+        <p className="py-3 text-sm text-base-content/60">{SHELL_DEMO_BODY}</p>
+        <div className="modal-action">
+          <button
+            type="button"
+            className="btn btn-primary flex-1 md:flex-none"
+            onClick={() => setShellOpen(false)}
+          >
+            {SHELL_DEMO_CLOSE_ACTION}
+          </button>
+        </div>
+      </OverlayShell>
+    </Section>
+  );
+
+  // Toast is position:fixed; the contain:layout boxes pin each specimen
+  // inside its own frame the way scenario frames do, and data-time="frozen"
+  // holds the countdown the same way.
+  const renderToast = () => (
+    <Section
+      title="Toast"
+      description="Bottom-anchored transient message: optional action button and a countdown bar draining over the auto-dismiss window (hover holds it). Carries the matrix's undo toast and the mobile add confirmation."
+    >
+      <Row>
+        <Variant label="Action + countdown (frozen)">
+          <div
+            className="relative h-24 w-80 [contain:layout]"
+            data-time="frozen"
+          >
+            <Toast
+              tone="success"
+              actionLabel={TOAST_DEMO_ACTION}
+              durationMs={TOAST_DEMO_DURATION_MS}
+            >
+              <CheckIcon className="size-[15px] stroke-[2.5]" />
+              {TOAST_DEMO_MESSAGE}
+            </Toast>
+          </div>
+        </Variant>
+        <Variant label="Message only">
+          <div className="relative h-24 w-80 [contain:layout]">
+            <Toast tone="success">
+              <CheckIcon className="size-[15px] stroke-[2.5]" />
+              {TOAST_DEMO_PLAIN}
+            </Toast>
+          </div>
+        </Variant>
+      </Row>
+    </Section>
+  );
+
+  const renderPopover = () => (
+    <Section
+      title="Popover"
+      description="Anchored panel below a position:relative parent with an arrow notch; the click-away layer stays page-level (see the matrix)."
+    >
+      <div className="pb-28">
+        {/* contain:layout makes this box the containing block for the
+            panel's fixed positioning, so the demo scrolls with the page
+            exactly like a scenario frame. */}
+        <div className="relative inline-block [contain:layout]">
+          <button type="button" className="btn btn-outline btn-sm">
+            {POPOVER_DEMO_ANCHOR}
+          </button>
+          <Popover align="left" className="w-56">
+            <SectionLabel className="mb-1.5 block">
+              {POPOVER_DEMO_TITLE}
+            </SectionLabel>
+            <p className="text-xs text-base-content/60">{POPOVER_DEMO_BODY}</p>
+          </Popover>
+        </div>
+      </div>
+    </Section>
+  );
+
+  const renderConfirmButton = () => (
+    <Section
+      title="ConfirmButton"
+      description="Two-step destructive action row: rest → first click turns it into a ConfirmBar → second click executes. Parents reset a stale confirm via key remount. The second specimen is armed by a play step that clicks it once."
+    >
+      <div className="flex max-w-md flex-col gap-4">
+        <Variant label="rest (click to trigger)">
+          <ConfirmButton
+            label={CONFIRM_DEMO_LABEL}
+            confirmPrompt={CONFIRM_DEMO_PROMPT}
+            confirmLabel={CONFIRM_DEMO_CONFIRM}
+            cancelLabel={CONFIRM_DEMO_CANCEL}
+            onConfirm={() => undefined}
+          />
+        </Variant>
+        <Variant label="triggered (play: one click)">
+          <Play steps={[{click: {name: CONFIRM_DEMO_LABEL}}]}>
+            <ConfirmButton
+              label={CONFIRM_DEMO_LABEL}
+              confirmPrompt={CONFIRM_DEMO_PROMPT}
+              confirmLabel={CONFIRM_DEMO_CONFIRM}
+              cancelLabel={CONFIRM_DEMO_CANCEL}
+              onConfirm={() => undefined}
+            />
+          </Play>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  const renderOverlayHeader = () => (
+    <Section
+      title="OverlayHeader"
+      description="The one overlay header: icon/title/badge cluster, an optional subtitle line (what the overlay acts on), and the standard close affordance (down-chevron on mobile, ✕ from md up). Every sheet/modal header composes this — never hand-roll one."
+    >
+      <div className="flex flex-col gap-6">
+        <Variant label="icon + badge">
+          <div className="w-full">
+            <OverlayHeader
+              icon={<InboxStackIcon className="size-5 text-primary" />}
+              title={HEADER_DEMO_TITLE}
+              badge={<Pill color="primary">{HEADER_DEMO_BADGE}</Pill>}
+              onClose={() => undefined}
+              closeLabel={HEADER_DEMO_CLOSE}
+            />
+          </div>
+        </Variant>
+        <Variant label="subtitle">
+          <div className="w-full">
+            <OverlayHeader
+              title={HEADER_DEMO_SUBTITLE_TITLE}
+              subtitle={
+                <>
+                  <MapIcon className="size-3" />
+                  {HEADER_DEMO_SUBTITLE}
+                </>
+              }
+              onClose={() => undefined}
+              closeLabel={HEADER_DEMO_CLOSE}
+            />
+          </div>
+        </Variant>
+      </div>
+    </Section>
+  );
+
+  return (
+    <div className="flex flex-col gap-10">
+      <p className="text-sm text-base-content/50">
+        src/components/ui/ — the structural layer on top of the FX skin, generic
+        primitives with zero domain imports. New UI composes these; it never
+        hand-rolls the recipes.
+      </p>
+
+      <Zone title="Primitives">
+        {renderPills()}
+        {renderFormKit()}
+        {renderContentBlocks()}
+        {renderEmptyState()}
+        {renderTabBar()}
+        {renderBanner()}
+        {renderConfirmButton()}
+        {renderConfirmBar()}
+        {renderInlineConfirmButton()}
+      </Zone>
+
+      <Zone
+        title="Overlays"
+        description="ui/overlay/ — the one dialog stack: every sheet and modal composes OverlayShell + OverlayHeader; Popover and Toast are the non-dialog overlays."
+      >
+        {renderModalShell()}
+        {renderOverlayHeader()}
+        {renderModalFormFooter()}
+        {renderPopover()}
+        {renderToast()}
+      </Zone>
+    </div>
+  );
+};

@@ -1,0 +1,246 @@
+import type {
+  PlanMode,
+  PriorityQuadrant,
+  TaskSize,
+  TaskStatus,
+  TaskType,
+} from '@/generated/prisma/client';
+import type {PlanItem} from '@/lib/db/plans';
+import type {OneOffTaskState} from '@/utils/oneOffUtils';
+import type {ProjectStepState} from '@/utils/projectUtils';
+
+/** An existing template linked to a plan, with its per-plan type and frequency. */
+export type PlanTemplateInput = {
+  templateId: string;
+  type: TaskType;
+  frequency: number;
+};
+
+/** A brand-new template, created in the same transaction as the plan it joins. */
+export type NewPlanEntry = {
+  templateId: null;
+  title: string;
+  description: string;
+  size: TaskSize;
+  type: TaskType;
+  frequency: number;
+};
+
+/**
+ * One template slot when creating or patching a plan: reuse an existing
+ * template by id, or create a new one alongside the plan (`templateId: null`).
+ */
+export type PlanEntry = PlanTemplateInput | NewPlanEntry;
+
+/** How a plan's template links change between two full template lists. */
+export type PlanTemplateDiff = {
+  added: PlanTemplateInput[];
+  /** templateIds no longer in the plan */
+  removed: string[];
+  /** in both lists with a different type or frequency (carries the new values) */
+  modified: PlanTemplateInput[];
+};
+
+/** Guard reads every plan-creation path runs first (see getPlanCreationContext). */
+export type PlanCreationContext = {
+  /** The current-week ACTIVE plan after sync; creation must refuse while set. */
+  activePlan: PlanItem | null;
+  /** Last period's plan, completed by the new plan's creation. */
+  pendingPlan: PlanItem | null;
+  today: Date;
+  periodKey: string;
+};
+
+/** A new type and/or frequency for a template already linked to the plan. */
+export type PlanTemplateUpdate = Pick<PlanTemplateInput, 'templateId'> &
+  Partial<Pick<PlanTemplateInput, 'type' | 'frequency'>>;
+
+/** Changes to a plan's existing template links (new templates are resolved separately). */
+export type PlanTemplatePatch = {
+  addTemplates: PlanTemplateInput[];
+  updateTemplates: PlanTemplateUpdate[];
+  removeTemplateIds: string[];
+};
+
+/** Template ids a patch cannot apply, by reason (see applyTemplatePatch). */
+export type PlanTemplatePatchConflicts = {
+  /** added, but already linked */
+  alreadyInPlan: string[];
+  /** updated or removed, but not linked */
+  notInPlan: string[];
+  /** named more than once across add/update/remove */
+  repeated: string[];
+};
+
+/** A plan's template instances rolled up into totals (see rollUpOverall). */
+export type OverallStats = {
+  completionRate: number;
+  completedCount: number;
+  totalCount: number;
+  totalPoints: number;
+  /** completionRate over DAILY instances only (habit signal) */
+  dailyCompletionRate: number;
+};
+
+// ── Planning context (MCP) ─────────────────────────────────────────────
+
+/** A reusable template as the planning tools list it. */
+export type TaskTemplateSummary = {
+  templateId: string;
+  title: string;
+  description: string;
+  size: TaskSize;
+  points: number;
+};
+
+/** Task-instance counts: so far for the active plan, final for a finished one. */
+export type TaskProgress = {
+  completed: number;
+  expired: number;
+  total: number;
+  completionRate: number;
+};
+
+/** One template of a plan: the template, its per-plan config, and its progress. */
+export type PlanTemplateWithProgress = PlanTemplateInput &
+  Pick<TaskTemplateSummary, 'title' | 'size' | 'points'> &
+  TaskProgress;
+
+/** A one-off task on the priority matrix, as the planning tools list it. */
+export type OneOffTaskSummary = {
+  taskId: string;
+  title: string;
+  description: string | null;
+  size: TaskSize;
+  points: number;
+  quadrant: PriorityQuadrant | null;
+  /** Where the task sits on the weeks */
+  state: OneOffTaskState;
+  /** YYYY-MM-DD in the planner's time zone */
+  createdOn: string;
+};
+
+/** A one-off task on a plan, with its board status. */
+export type PlanOneOffTaskSummary = Pick<
+  OneOffTaskSummary,
+  'taskId' | 'title' | 'size' | 'points'
+> & {status: TaskStatus};
+
+/** A project step as its project's path lists it for the planning tools. */
+export type ProjectStepContext = {
+  stepId: string;
+  stepNumber: number;
+  title: string;
+  description: string | null;
+  size: TaskSize;
+  points: number;
+  /** Where the step sits on the weeks */
+  state: ProjectStepState;
+  /** YYYY-MM-DD in the planner's time zone; null until done */
+  doneOn: string | null;
+};
+
+/** A project with its whole path, as the planning tools describe it. */
+export type ProjectContext = {
+  projectId: string;
+  title: string;
+  goal: string | null;
+  doneCount: number;
+  stepCount: number;
+  /** At least one step, every one DONE (derived, never stored) */
+  allStepsDone: boolean;
+  /** In path order */
+  steps: ProjectStepContext[];
+};
+
+/** An archived project, listed so the user can bring it back. */
+export type ArchivedProjectSummary = Pick<
+  ProjectContext,
+  'projectId' | 'title' | 'goal' | 'doneCount' | 'stepCount'
+>;
+
+/** A project step on a plan, with its board status. */
+export type PlanProjectStepSummary = Pick<
+  ProjectStepContext,
+  'stepId' | 'stepNumber' | 'title' | 'size' | 'points'
+> & {
+  projectId: string;
+  projectTitle: string;
+  status: TaskStatus;
+};
+
+/** One plan as the planning tools describe it (see getPlanContextByPlanId). */
+export type PlanContext = {
+  planId: string;
+  periodKey: string;
+  description: string | null;
+  mode: PlanMode;
+  templates: PlanTemplateWithProgress[];
+  /** One-off tasks on the plan, done ones included */
+  oneOffTasks: PlanOneOffTaskSummary[];
+  /** Project steps on the plan, done ones included */
+  projectSteps: PlanProjectStepSummary[];
+  /** Totals over every template instance of the plan */
+  overall: TaskProgress & {
+    /** completionRate over DAILY instances only (habit signal) */
+    dailyCompletionRate: number;
+    pointsEarned: number;
+  };
+};
+
+/**
+ * Everything an assistant needs to plan the user's week: the date, this week's
+ * ACTIVE plan or last period's PENDING_UPDATE plan (at most one of them exists),
+ * the reusable templates, the projects and the one-off tasks.
+ */
+export type PlanningContext = {
+  /** YYYY-MM-DD in `timeZone` */
+  today: string;
+  weekday: string;
+  timeZone: string;
+  week: {periodKey: string; start: string; end: string};
+  activePlan: PlanContext | null;
+  lastPlan: PlanContext | null;
+  /** Non-archived templates, newest first */
+  templates: TaskTemplateSummary[];
+  /** Non-archived projects, newest first */
+  projects: ProjectContext[];
+  archivedProjects: ArchivedProjectSummary[];
+  /** Unfinished one-off tasks on the priority matrix, in matrix order */
+  oneOffTasks: OneOffTaskSummary[];
+};
+
+/** A template, one-off task or project step named in a change summary. */
+export type PlanChangeRef = {id: string; title: string};
+
+/** What a patch changed, plus the plan as it stands afterwards. */
+export type PlanPatchResult = {
+  changes: {
+    addedTemplates: PlanChangeRef[];
+    modifiedTemplates: PlanChangeRef[];
+    removedTemplates: PlanChangeRef[];
+    removedOneOffTasks: PlanChangeRef[];
+    addedProjectSteps: PlanChangeRef[];
+    removedProjectSteps: PlanChangeRef[];
+  };
+  plan: PlanContext;
+};
+
+/** What a project patch changed, plus the project as it stands afterwards. */
+export type ProjectPatchResult = {
+  changes: {
+    addedSteps: PlanChangeRef[];
+    updatedSteps: PlanChangeRef[];
+    movedSteps: PlanChangeRef[];
+    removedSteps: PlanChangeRef[];
+    /** Present when the patch archived (true) or unarchived (false) it */
+    archived?: boolean;
+  };
+  project: ProjectContext;
+};
+
+/** The one-off tasks an update changed, as they stand afterwards. */
+export type OneOffTasksPatchResult = {
+  completedTasks: OneOffTaskSummary[];
+  reprioritizedTasks: OneOffTaskSummary[];
+};

@@ -1,0 +1,133 @@
+import {cache} from 'react';
+import {prisma} from '@/lib/prisma';
+import {
+  getActivePlan,
+  getPlanWithTemplates,
+  updateLastSyncDate,
+  updatePlanStatus,
+  type PlanItem,
+} from '@/lib/db/plans';
+import {
+  createManyTasks,
+  expireAllNonDoneTasks,
+  expireStaleDailyTasks,
+} from '@/lib/db/tasks';
+import {
+  PlanMode,
+  PlanStatus,
+  TaskType,
+  TaskStatus,
+} from '@/generated/prisma/client';
+import {
+  getTodayDate,
+  isPeriodCurrent,
+  isWeekend,
+  normalizeForDate,
+} from '../utils/dateUtils';
+import {sizeToPoints} from '../utils/sizeUtils';
+
+/**
+ * Run daily sync for a plan: expire stale tasks and generate today's daily tasks.
+ * Standalone and reusable (e.g., by a future cron job).
+ */
+export async function runDailySync(
+  userId: string,
+  planId: string,
+  today: Date,
+): Promise<void> {
+  // Read before transaction — template data doesn't change during sync
+  const planWithTemplates = await getPlanWithTemplates(userId, planId);
+  if (!planWithTemplates) return;
+
+  const skipDailyGeneration =
+    planWithTemplates.mode === PlanMode.NORMAL && isWeekend(today);
+
+  const dailyTaskData: Parameters<typeof createManyTasks>[0] = [];
+
+  if (!skipDailyGeneration) {
+    for (const pt of planWithTemplates.planTemplates) {
+      if (pt.type !== TaskType.DAILY) continue;
+
+      for (let i = 0; i < pt.frequency; i++) {
+        dailyTaskData.push({
+          userId,
+          planId,
+          templateId: pt.template.id,
+          type: TaskType.DAILY,
+          title: pt.template.title,
+          description: pt.template.description,
+          size: pt.template.size,
+          points: sizeToPoints(pt.template.size),
+          status: TaskStatus.BACKLOG,
+          forDate: today,
+          instanceIndex: i,
+        });
+      }
+    }
+  }
+
+  // No rollover: a missed day's unfinished daily tasks expire with the day.
+
+  await prisma.$transaction(async tx => {
+    await updateLastSyncDate(userId, planId, today, tx);
+    await expireStaleDailyTasks(userId, planId, today, tx);
+    if (dailyTaskData.length > 0) {
+      await createManyTasks(dailyTaskData, tx);
+    }
+  });
+}
+
+/**
+ * Run end-of-period sync: expire all undone template instances and move plan to
+ * PENDING_UPDATE. One-offs and project steps never expire — they wait on the
+ * pending plan for the next plan to carry over or return them.
+ * Standalone and reusable (e.g., by a future cron job).
+ */
+export async function runEndOfPeriodSync(
+  userId: string,
+  planId: string,
+): Promise<void> {
+  await prisma.$transaction(async tx => {
+    await expireAllNonDoneTasks(userId, planId, tx);
+    await updatePlanStatus(userId, planId, PlanStatus.PENDING_UPDATE, tx);
+  });
+}
+
+/**
+ * Single entry point for the sync lifecycle: every kanban page (board, matrix,
+ * plan create/edit, projects) and the root layout (the sidebar and dock's
+ * plan state) await this before reading plan state, so no page carries
+ * its own sync branching and no "which page did the user visit first?" ordering
+ * matters. Flips an ended ACTIVE plan to PENDING_UPDATE, runs the daily sync
+ * once per day, and returns the current-week ACTIVE plan (or null).
+ *
+ * Idempotent, and wrapped in React cache() so concurrent calls within one
+ * server render pass (e.g. a page and a nested component) dedupe to one run.
+ * Server Actions run in their own request, so mutations re-check fresh state.
+ */
+export const ensureSynced = cache(
+  async (userId: string): Promise<PlanItem | null> => {
+    const plan = await getActivePlan(userId);
+    if (!plan) return null;
+
+    const today = getTodayDate();
+
+    // Period ended (new ISO week) → complete the period, no active plan anymore
+    if (!isPeriodCurrent(plan.periodKey, today)) {
+      await runEndOfPeriodSync(userId, plan.id);
+      return null;
+    }
+
+    // Daily sync at most once per day (lastSyncDate short-circuit). The DATE
+    // column reads back as UTC midnight and today is local midnight, so they
+    // compare as calendar days — equal times only where the server runs UTC.
+    const needsSync =
+      !plan.lastSyncDate ||
+      normalizeForDate(plan.lastSyncDate).getTime() !== today.getTime();
+    if (needsSync) {
+      await runDailySync(userId, plan.id, today);
+    }
+
+    return plan;
+  },
+);
