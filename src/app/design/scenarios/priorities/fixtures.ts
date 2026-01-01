@@ -6,12 +6,17 @@ import {
   SIZE_TO_POINTS,
 } from '@/utils/enums';
 import type {TaskItem} from '@/lib/db/tasks';
-import type {MatrixActivePlan} from '@/services/matrixService';
+import type {MatrixActivePlan, MatrixData} from '@/services/matrixService';
 
 /* Priorities scenario fixtures — the real matrix page fed a populated
-   Eisenhower spread with a couple of tracked (on-board) tasks. */
+   Eisenhower spread with a couple of tracked (on-board) tasks. The tabs pass
+   each matrix through the route's adapter (toPrioritiesPageProps). */
 
 const NOW = new Date('2026-07-10T15:00:00');
+
+/** The scenarios' today (local midnight): with no plan, the header falls
+    back to its ISO week — the active plan's week. */
+export const SCENARIO_TODAY = new Date(2026, 6, 10);
 
 export const SCENARIO_ACTIVE_PLAN: MatrixActivePlan = {
   id: 'scn-plan',
@@ -60,7 +65,7 @@ const SHEET_TASK_ID = 'scn-move-sheet';
 /** The tracked card shown in the mobile sheet's Done-only state. */
 const SHEET_TRACKED_TASK_ID = 'scn-move-sheet-tracked';
 
-export const MATRIX_TASKS: TaskItem[] = [
+const MATRIX_TASKS: TaskItem[] = [
   // Do First — one tracked (dimmed, This Week tag), one actionable
   task({
     id: TRACKED_POPOVER_TASK_ID,
@@ -135,9 +140,28 @@ export const DONE_TASK: TaskItem = MATRIX_TASKS.find(
 
 /** The matrix right after DONE_TASK was marked done — the page drops the
     card optimistically, so the composed Done-toast tabs render this. */
-export const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(
-  t => t.id !== DONE_TASK.id,
-);
+const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(t => t.id !== DONE_TASK.id);
+
+/** The matrix read, as the route gets it from fetchPriorityMatrixAction. */
+export const MATRIX: MatrixData = {
+  tasks: MATRIX_TASKS,
+  activePlan: SCENARIO_ACTIVE_PLAN,
+};
+
+export const MATRIX_NO_PLAN: MatrixData = {
+  tasks: MATRIX_TASKS,
+  activePlan: null,
+};
+
+export const MATRIX_AFTER_DONE: MatrixData = {
+  tasks: MATRIX_TASKS_AFTER_DONE,
+  activePlan: SCENARIO_ACTIVE_PLAN,
+};
+
+export const MATRIX_AFTER_DONE_NO_PLAN: MatrixData = {
+  tasks: MATRIX_TASKS_AFTER_DONE,
+  activePlan: null,
+};
 
 /** Play scope for one fixture card: @hello-pangea/dnd stamps each draggable
     with its id. */

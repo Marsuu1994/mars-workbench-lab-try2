@@ -12,6 +12,8 @@ import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
+import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
+import type {PrioritiesPageContextValue} from '@/components/domain/priorities/PrioritiesPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
 /** Title halves — the accent word renders with fx-text-gradient (the
@@ -418,10 +420,13 @@ export const STEP_PATH_FIXTURES: {label: string; step: ProjectStepContext}[] = [
 ];
 
 // ── Matrix card fixtures ─────────────────────────────────────────────────────
+/** The plan the MatrixTaskCard specimens render against: a card on it is
+    tracked (This Week). */
+export const MATRIX_CARD_ACTIVE_PLAN_ID = 'gallery-matrix-plan';
+
 export interface MatrixCardFixture {
   label: string;
   task: TaskItem;
-  isTracked: boolean;
 }
 
 export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
@@ -438,7 +443,6 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       planId: null,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: false,
   },
   {
     label: 'Tracked (This Week)',
@@ -448,9 +452,9 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       title: 'Shop birthday gift',
       description: 'For mom — this Saturday',
       status: TaskStatus.TODO,
+      planId: MATRIX_CARD_ACTIVE_PLAN_ID,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: true,
   },
 ];
 
@@ -681,6 +685,27 @@ export const inertProjectsPageContext = (
   moveStep: () => undefined,
   archiveProject: async () => undefined,
   unarchiveProject: async () => undefined,
+});
+
+/** The page context a MobileBacklogCard renders in, outside the Board page:
+    inert handlers (the frame swallows clicks). */
+export const inertBoardPageContext = (): BoardPageContextValue => ({
+  pullToTodo: () => undefined,
+});
+
+/** The page context a MatrixTaskCard or Move-to specimen renders in, outside
+    the Priorities page: the fixture's plan, no popover open, inert handlers
+    (the frame swallows clicks). */
+export const inertPrioritiesPageContext = (
+  activePlanId: string | null,
+): PrioritiesPageContextValue => ({
+  activePlanId,
+  openPopoverTaskId: null,
+  togglePopover: () => undefined,
+  openMoveToSheet: () => undefined,
+  openAddTask: () => undefined,
+  trackTask: () => undefined,
+  completeTask: () => undefined,
 });
 
 /** TemplateItem — a single selectable plan-template row. */
