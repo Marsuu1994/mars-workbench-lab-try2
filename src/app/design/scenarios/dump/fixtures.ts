@@ -1,10 +1,12 @@
 import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 
-/* Dump scenario fixtures — a DumpEntryItem[] spanning Today / Yesterday / an
-   older day so the feed's day-group headers all render, plus one long (>6
-   line) entry to pin the clamp + Show more. createdAt is relative to now so
-   the Today/Yesterday headings stay correct whenever the scenario is viewed
-   (grouping is anchored to KANBAN_TZ). */
+/* Dump scenario fixtures, raw as the route's two read actions return them
+   (the scenario runs them through the route's toDumpPageProps) — a first
+   feed page spanning Today / Yesterday / an older day so the feed's day-group
+   headers all render, plus one long (>6 line) entry to pin the clamp + Show
+   more. createdAt is relative to now so the Today/Yesterday headings stay
+   correct whenever the scenario is viewed (grouping is anchored to
+   KANBAN_TZ). */
 
 const NOW = Date.now();
 const HOUR = 60 * 60 * 1000;
@@ -16,7 +18,7 @@ const entry = (id: string, content: string, msAgo: number): DumpEntryItem => ({
   createdAt: new Date(NOW - msAgo),
 });
 
-export const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
+const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
   entry(
     'scn-d0',
     'Dentist says come back in October for a cleaning. Book it before the calendar fills up — and actually floss this time.',
@@ -53,5 +55,15 @@ Tomorrow: gym before standup, then a deep-work block till noon.`,
   ),
 ];
 
-/** Header week badge — dump is plan-independent, so a fixed recent week. */
-export const DUMP_PERIOD_KEY = '2026-W29';
+/* nextCursor is null on both pages so the load-more observer stays inert
+   against the fixtures. */
+export const DUMP_FEED = {
+  data: {entries: DUMP_FEED_ENTRIES, nextCursor: null},
+};
+export const DUMP_TOTAL_COUNT = DUMP_FEED_ENTRIES.length;
+
+export const EMPTY_DUMP_FEED = {data: {entries: [], nextCursor: null}};
+
+/** Header week badge — dump is plan-independent, so a fixed recent day
+ *  (Wednesday of 2026-W29), local midnight as getTodayDate returns it. */
+export const DUMP_TODAY = new Date(2026, 6, 15);

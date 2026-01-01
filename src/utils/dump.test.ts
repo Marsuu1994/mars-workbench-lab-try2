@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +7,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +55,39 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  // A local-midnight Wednesday, as getTodayDate returns it
+  const wednesday = new Date(2026, 9, 14);
+  const entry = {
+    id: 'entry-1',
+    content: 'Book the dentist',
+    createdAt: new Date(MOMENTS.WEDNESDAY_NOON),
+  };
+
+  it("seeds the feed with the first page under today's week", () => {
+    expect(
+      toDumpPageProps(
+        {data: {entries: [entry], nextCursor: 'cursor-1'}},
+        7,
+        wednesday,
+      ),
+    ).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: [entry],
+      initialNextCursor: 'cursor-1',
+      initialTotalCount: 7,
+    });
+  });
+
+  it('falls back to an empty feed when the first page fails', () => {
+    expect(toDumpPageProps({error: 'invalid'}, 0, wednesday)).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: [],
+      initialNextCursor: null,
+      initialTotalCount: 0,
+    });
   });
 });
