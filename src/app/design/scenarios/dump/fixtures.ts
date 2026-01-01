@@ -1,10 +1,11 @@
 import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 
-/* Dump scenario fixtures — a DumpEntryItem[] spanning Today / Yesterday / an
-   older day so the feed's day-group headers all render, plus one long (>6
-   line) entry to pin the clamp + Show more. createdAt is relative to now so
-   the Today/Yesterday headings stay correct whenever the scenario is viewed
-   (grouping is anchored to KANBAN_TZ). */
+/* Dump scenario fixtures — raw data shaped like the route's two read
+   actions, passed through the route's own adapter (toDumpPageProps). The feed
+   spans Today / Yesterday / an older day so the feed's day-group headers all
+   render, plus one long (>6 line) entry to pin the clamp + Show more.
+   createdAt is relative to now so the Today/Yesterday headings stay correct
+   whenever the scenario is viewed (grouping is anchored to KANBAN_TZ). */
 
 const NOW = Date.now();
 const HOUR = 60 * 60 * 1000;
@@ -16,7 +17,7 @@ const entry = (id: string, content: string, msAgo: number): DumpEntryItem => ({
   createdAt: new Date(NOW - msAgo),
 });
 
-export const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
+const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
   entry(
     'scn-d0',
     'Dentist says come back in October for a cleaning. Book it before the calendar fills up — and actually floss this time.',
@@ -53,5 +54,15 @@ Tomorrow: gym before standup, then a deep-work block till noon.`,
   ),
 ];
 
-/** Header week badge — dump is plan-independent, so a fixed recent week. */
-export const DUMP_PERIOD_KEY = '2026-W29';
+/** fetchDumpEntriesAction's first page: every entry, no cursor, so the
+    infinite-scroll observer stays inert against the fixtures. */
+export const DUMP_FEED_PAGE = {
+  data: {entries: DUMP_FEED_ENTRIES, nextCursor: null},
+};
+export const DUMP_FEED_TOTAL_COUNT = DUMP_FEED_ENTRIES.length;
+
+export const DUMP_EMPTY_PAGE = {data: {entries: [], nextCursor: null}};
+
+/** The route's `today`, fixed so the header's week badge stays a recent week
+    (2026-W29); the feed's Today / Yesterday headings follow the real clock. */
+export const DUMP_SCENARIO_TODAY = new Date(2026, 6, 15);
