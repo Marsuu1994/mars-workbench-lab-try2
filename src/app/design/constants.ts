@@ -12,6 +12,7 @@ import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
+import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
 /** Title halves — the accent word renders with fx-text-gradient (the
@@ -543,6 +544,12 @@ export const BOARD_COLUMN_STATUS = TaskStatus.TODO;
 export const BOARD_COLUMN_CARDS: BoardCard[] = MINI_CARD_FIXTURES.map(
   fixture => fixture.card,
 );
+
+/** The page context a mobile backlog card renders in, outside the Board
+    page: an inert pull (the frame swallows clicks). */
+export const inertBoardPageContext = (): BoardPageContextValue => ({
+  pullToTodo: () => undefined,
+});
 
 /** PlanTaskRow — tasks already on the plan the form keeps or lets go. */
 export const PLAN_TASK_ROW_FIXTURES = [
