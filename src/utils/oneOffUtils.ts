@@ -1,10 +1,12 @@
 import type {MatrixTaskRow, TaskItem} from '@/lib/db/tasks';
+import type {MatrixData} from '@/services/matrixService';
 import type {CreateAdhocTaskInput} from '../schemas';
 import type {OneOffTaskSummary} from '../types/plan';
+import type {PrioritiesPageData} from '../types/priorities';
 import {PriorityQuadrant, TaskStatus} from './enums';
-import {formatKanbanISODate} from './dateUtils';
+import {formatKanbanISODate, getISOWeekKey} from './dateUtils';
 import {sizeToPoints} from './sizeUtils';
-import {getWeekPlacement} from './taskUtils';
+import {WeekPlacement, getWeekPlacement} from './taskUtils';
 
 /** The most one-off tasks one Claude call creates, completes or moves. */
 export const ONE_OFF_BATCH_LIMIT = 20;
@@ -16,6 +18,50 @@ export const QUADRANT_ORDER: PriorityQuadrant[] = [
   PriorityQuadrant.SQUEEZE_IN,
   PriorityQuadrant.MAYBE_LATER,
 ];
+
+/**
+ * Tasks created before the matrix (or during a deploy window) may carry a null
+ * quadrant — group them into the backfill default so no card silently drops
+ * out of the 2×2 grid. Also the add-task picker's preselected quadrant.
+ */
+export const FALLBACK_QUADRANT = PriorityQuadrant.SCHEDULE;
+
+/**
+ * The Priorities page's props from the matrix read: with no active plan the
+ * header shows the current ISO week of `today`.
+ */
+export const toPrioritiesPageProps = (
+  {tasks, activePlan}: MatrixData,
+  today: Date,
+): PrioritiesPageData => ({
+  periodKey: activePlan?.periodKey ?? getISOWeekKey(today),
+  tasks,
+  activePlanId: activePlan?.id ?? null,
+});
+
+/** One-offs by matrix cell, each keeping the order given; a null quadrant
+    falls back to FALLBACK_QUADRANT. */
+export const groupTasksByQuadrant = <Task extends Pick<TaskItem, 'quadrant'>>(
+  tasks: readonly Task[],
+): Record<PriorityQuadrant, Task[]> => {
+  const tasksByQuadrant: Record<PriorityQuadrant, Task[]> = {
+    [PriorityQuadrant.DO_FIRST]: [],
+    [PriorityQuadrant.SCHEDULE]: [],
+    [PriorityQuadrant.SQUEEZE_IN]: [],
+    [PriorityQuadrant.MAYBE_LATER]: [],
+  };
+  for (const task of tasks) {
+    tasksByQuadrant[task.quadrant ?? FALLBACK_QUADRANT].push(task);
+  }
+  return tasksByQuadrant;
+};
+
+/** Whether a matrix one-off is on this week's board (the dimmed "This Week"
+    card, whose Move-to offers Done only). */
+export const isTrackedTask = (
+  task: Pick<TaskItem, 'planId'>,
+  activePlanId: string | null,
+): boolean => getWeekPlacement(task, activePlanId) === WeekPlacement.THIS_WEEK;
 
 /** Where a one-off sits on the weeks. */
 export const OneOffTaskState = {
