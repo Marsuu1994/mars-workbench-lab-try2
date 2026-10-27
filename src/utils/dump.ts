@@ -1,12 +1,43 @@
 /**
  * Dump feature constants + client-safe date helpers — shared by the zod schema,
- * the server action's paging, and the composer/feed UI (textarea maxLength,
- * skeletons, day grouping).
+ * the server action's paging, the route's adapter, and the composer/feed UI
+ * (textarea maxLength, skeletons, day grouping).
  */
-import {KANBAN_TZ, formatDayLabel, formatKanbanISODate} from './dateUtils';
+import type {DumpFeedPage, DumpPageData} from '@/types/dump';
+import {
+  KANBAN_TZ,
+  formatDayLabel,
+  formatKanbanISODate,
+  getISOWeekKey,
+} from './dateUtils';
 
 export const DUMP_PAGE_SIZE = 20;
 export const DUMP_ENTRY_MAX_LENGTH = 10000;
+
+/** A feed page as `fetchDumpEntriesAction` returns it. */
+type DumpFeedResult = {data: DumpFeedPage} | {error: unknown};
+
+const EMPTY_FEED_PAGE: DumpFeedPage = {entries: [], nextCursor: null};
+
+/**
+ * The Dump route's adapter: the feed's first page, its total and the header's
+ * week — today's ISO week, since the dump is plan-independent. The cursorless
+ * first page can only succeed; its (unreachable) error branch falls back to an
+ * empty feed so the types stay honest.
+ */
+export function toDumpPageProps(
+  feed: DumpFeedResult,
+  totalCount: number,
+  today: Date,
+): DumpPageData {
+  const {entries, nextCursor} = 'data' in feed ? feed.data : EMPTY_FEED_PAGE;
+  return {
+    periodKey: getISOWeekKey(today),
+    initialEntries: entries,
+    initialNextCursor: nextCursor,
+    initialTotalCount: totalCount,
+  };
+}
 
 const pad2 = (value: number) => String(value).padStart(2, '0');
 

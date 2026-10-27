@@ -36,7 +36,7 @@ What the product does today, page by page — a skimmable tour, 1–2 lines per 
 ### Design System
 
 - **"Mission Control HUD"** (`design/design-language/` — `mars-dark.md` / `mars-light.md` + shared skeleton in its README): two custom daisyUI themes — `mars-dark` (default, night ops deck) / `mars-light` ("dawn on Mars" — warm sand, not white) — on seven OKLCH hues with verified contrast, plus the token-derived `fx-*` utility layer (cosmic shell, console chips, status LEDs, telemetry type, glow CTAs). Palette changes must follow the sync points listed in the design doc. All themes declare one shared variable contract (`npm run check:themes`, CI) and a page carries a single theme scope on `<html>`
-- **Design Console** (`/design`): component gallery tabbed by layer (Tokens & FX · UI · Application · Domain) plus per-feature scenario pages (`/design/scenarios`: board, priorities, plan, projects, dump, auth) rendering the same screen components as the live pages with fixture states (interaction states reached by scripted clicks, never by scenario-only props) — the source of truth for implemented UI, structurally unable to drift from production; designs not yet fully implemented are mocked up in `design/mockup/`
+- **Design Console** (`/design`): component gallery tabbed by layer (Tokens & FX · UI · Application · Domain) plus per-feature scenario pages (`/design/scenarios`: board, priorities, plan, projects, dump, auth) rendering the same page containers as the live pages with fixture states (interaction states reached by scripted clicks, never by scenario-only props) — the source of truth for implemented UI, structurally unable to drift from production; designs not yet fully implemented are mocked up in `design/mockup/`
 - **`p5-dark` ("P5 dark")**: third theme, **full Calling Card skin** — flat-depth geometry fork (halftone shell, sticker cards, hazard targets, parallelogram chips, diamond LEDs, white-flip nav, pop-shadow CTAs with the paper/ink hover flip), Anton display voice on fixed chrome labels, and five opt-in utilities (`fx-display/tile/cut/slash/burst`). Spec `design/design-language/p5-dark.md`
 
 ### Board
@@ -102,6 +102,14 @@ Open items: see [design/tracker.md](./design/tracker.md).
 - [x] Deploy app on Vercel
 
 ## Update Log
+
+### 2026-10-27
+- **Board, Priorities and Dump now follow the Projects page's structure** (`design/spike/component-structure.md`, Part 1): each route renders its page's container (`BoardPage`, `PrioritiesPage`, `DumpPage`) with no screen layer in between, and each container hands its writes down through a page context, so the components below take rows and no callbacks. Nothing changes on screen.
+  - **Board**: `BoardPage` takes over `BoardScreen`'s header, dashboard and layout; the mobile backlog card pulls through `BoardPageContext`.
+  - **Priorities**: `PrioritiesPage` takes over `PrioritiesScreen`. Tracking, completing, the Move-to popover, the mobile sheet and Add go through `PrioritiesPageContext`, which cuts the quadrant cell and the card from 9 props to 2. The no-plan week fallback is now the route adapter `toPrioritiesPageProps`, and the quadrant grouping and the "tracked" test are pure helpers with unit tests.
+  - **Dump**: `DumpPage` gets capture and load more from `DumpPageContext`, and the route's unwrapping and week are now the adapter `toDumpPageProps`.
+  - **Design Console**: the scenarios render the containers and run raw fixtures through the route adapters; the gallery's mobile backlog card and matrix card render inside inert page contexts.
+  - **Docs**: Plan is now the only page not on the structure (it moves with Phase 2's Plan week). The tracker's Step 10 is down to the config-driven modals.
 
 ### 2026-10-26
 - **The page structure is settled except how to run the remaining pages** (owner's review of PR #83). AGENTS.md › *Page structure* is down to its core — a route reads its data, shapes it with a pure adapter when the page needs one, and renders the container, which hands its writes down through a page context, so components take rows and no callbacks — and `baseline.md` › Architecture Decision › *Page structure* holds the full standard. It opens with one premise, where a derivation runs: in the lowest layer that holds all its inputs and sits downstream of the last thing that changes them. Server-only shaping (a fallback week, a form's initial selections) goes in the route's adapter; whatever reads optimistic rows or client state goes in the container (`toBoardCards`) or in the component that has the rows (`summarizeProject`). The route-as-adapter replaces the earlier proposal of moving that shaping into services, so the Priorities and Dump changes need no new action or service.
