@@ -54,6 +54,10 @@
 - 05:59–06:05 新窗口（05:50–10:50）在约 9 分钟内被耗尽：十个评审 session（fable，high，每个 $2.7–4.2、cache read 1.6–3.4M）+ 17 个 subagent（fable，继承主 session 的 effort max）+ 主 session 自己（context 46 万 token，每次工具往返都重读）。九个评审 session 中途 failed（R1–R3、R5–R10），R4 显示 review_ready；清单审计 0/10 写出；transcript 8/10 写出（缺 B4、B5）；PR 描述导出的 subagent 没来得及写文件。
 - 11:18 限制重置后按 owner 要求暂停：没有恢复任何 subagent 或评审 session，心跳任务已停（trig_019H7aDpmxErKvst3RUrxTbN enabled=false），等 owner 决定怎么继续。
 - 原因分析见给 owner 的消息（11:20）。
+- 17:05 owner 发现 PR #91 diff 3.3 万行：81% 是导出的 patch（try2/takeaways §2 有拆分、原因、对 limit 的影响和四个选项）；没动分支。
+- 18:50 owner 问中途改协议和暂停的影响：答案记在 takeaways §3、§4。owner 说晚点给继续的指示；在那之前不起任何 subagent 或评审 session。
+- 18:45 十个 run session 的 usage 重新拉了一遍（都已 idle，是最终值）：B5 从 $9.16 修正为 $9.39（首检后多了一轮等 CI 的 turn），其余不变；A 均值 $6.30、B $9.39，1.49 倍。十个 run 的 `rate_limit_info.resetsAt` 都是 05:50，最后活动 05:30–05:38，两次撞限都没碰到 run。
+- 16:50 按 owner 要求把 drain 的经过、原因和对策写成 `try2/takeaways.md`（归档分支），experiments README 的 Controller notes 加一条窗口规则，README Update Log 当天条目重写。
 
 ## 评审 session
 
@@ -69,3 +73,18 @@
 | R8 | `session_01KCt6pLAAr9Dvk7pNTK56Lf` | working（05:54 创建） |
 | R9 | `session_01KCt6pMad3TEgd2M8nEtfbn` | working（05:54 创建） |
 | R10 | `session_01KCt6pHruDYkUaMWkqvdXR1` | working（05:54 创建） |
+
+## 待 owner 决定（随继续的指示一起）
+
+1. patch 的处理：去掉（留 diffstat，lab 仓库归档不删）/ 推 run 分支到主仓库 / 只留推荐 run 的 / 保持并加 `.ignore`。去掉的话：加删除 commit，还是从分支历史里拿掉 `ec1647e` 再 force push。
+2. 盲审：重跑九个（R4 保留）还是 `send_message` 续跑；重跑用 `try2/prompts/review-R*.txt` 原文、同一批 review 分支、新 session，一个窗口刚重置时单独起。
+3. 剩余 subagent（清单审计 ×10、B4/B5 transcript、评审收集）的模型和 effort；不说就沿用 fable、继承 max，但一次只起 2–3 个。
+4. instruction 要不要按 takeaways §3 的记法改（第 6、7 步和收数据的执行方式），Status 行注明。
+
+## 恢复步骤（owner 给指示后）
+
+1. `get_session` 看 `rate_limit_info`；评审放在窗口开头，期间不起 subagent。
+2. 盲审按决定执行；完成后一个 subagent 收齐十份 JSON 并审计（有没有 GitHub 工具、别的 ref）。
+3. 收数据串行：B4、B5 transcript（续 agent a37e0a9055a2b8171 / a4b6b63aa9ad3c592，或脚本）；清单审计一次 2–3 个（agent id 在 §4 收数据的记录里，可续）；PR 描述从 lab 仓库 PR #1–#10 重新拉（`pull_request_read` get）存 `try2/data/pr-<RUN>.md`。
+4. 汇总脚本出表（transcript 指标、成本、T_pr/T_green、清单、行为、评审），H1–H4 判定，和 try1 并排；报告 `try2/report.md`。
+5. 推荐 run 的分支同名推到主仓库、对 `main` 开 PR；归档 PR 更新（README Update Log、tracker）；二十个 session 归档；lab 仓库交 owner。
