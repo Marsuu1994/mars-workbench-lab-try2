@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +7,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +55,33 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  // Thursday of the frozen week, as getTodayDate returns it: local midnight
+  const thursday = new Date(2026, 9, 15);
+  const entries = [
+    {id: 'entry', content: 'Book the dentist', createdAt: new Date()},
+  ];
+
+  it("seeds the feed with the first page and heads it with today's week", () => {
+    expect(
+      toDumpPageProps({data: {entries, nextCursor: 'cursor'}}, 21, thursday),
+    ).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: entries,
+      initialNextCursor: 'cursor',
+      initialTotalCount: 21,
+    });
+  });
+
+  it('falls back to an empty feed when the read fails', () => {
+    expect(toDumpPageProps({error: 'invalid cursor'}, 0, thursday)).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: [],
+      initialNextCursor: null,
+      initialTotalCount: 0,
+    });
   });
 });
