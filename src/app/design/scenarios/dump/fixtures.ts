@@ -1,4 +1,6 @@
 import type {DumpEntryItem} from '@/lib/db/dumpEntries';
+import type {DumpPageData} from '@/types/dump';
+import {toDumpPageProps} from '@/utils/dump';
 
 /* Dump scenario fixtures — a DumpEntryItem[] spanning Today / Yesterday / an
    older day so the feed's day-group headers all render, plus one long (>6
@@ -16,7 +18,7 @@ const entry = (id: string, content: string, msAgo: number): DumpEntryItem => ({
   createdAt: new Date(NOW - msAgo),
 });
 
-export const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
+const DUMP_FEED_ENTRIES: DumpEntryItem[] = [
   entry(
     'scn-d0',
     'Dentist says come back in October for a cleaning. Book it before the calendar fills up — and actually floss this time.',
@@ -53,5 +55,21 @@ Tomorrow: gym before standup, then a deep-work block till noon.`,
   ),
 ];
 
-/** Header week badge — dump is plan-independent, so a fixed recent week. */
-export const DUMP_PERIOD_KEY = '2026-W29';
+/** The day the header's week badge comes from — dump is plan-independent,
+    so a fixed day of a recent week (2026-W29). */
+const DUMP_TODAY = new Date(2026, 6, 15);
+
+/** The populated feed's page props, shaped by the route's own adapter. The
+    cursor is null so the infinite-scroll observer stays inert. */
+export const DUMP_FEED_PAGE: DumpPageData = toDumpPageProps(
+  {data: {entries: DUMP_FEED_ENTRIES, nextCursor: null}},
+  DUMP_FEED_ENTRIES.length,
+  DUMP_TODAY,
+);
+
+/** A first visit: no entries yet. */
+export const DUMP_EMPTY_PAGE: DumpPageData = toDumpPageProps(
+  {data: {entries: [], nextCursor: null}},
+  0,
+  DUMP_TODAY,
+);
