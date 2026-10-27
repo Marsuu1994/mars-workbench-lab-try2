@@ -13,9 +13,13 @@ import {
 } from '@heroicons/react/24/outline';
 import type {TaskItem} from '@/lib/db/tasks';
 import {PriorityQuadrant} from '@/utils/enums';
-import {QUADRANT_ORDER} from '@/utils/oneOffUtils';
+import {
+  QUADRANT_ORDER,
+  groupTasksByQuadrant,
+  isTrackedTask,
+} from '@/utils/oneOffUtils';
 import type {TrackTargetStatus} from '@/schemas';
-import type {MatrixActivePlan} from '@/services/matrixService';
+import type {PrioritiesPageData} from '@/types/priorities';
 import {useOptimisticTasks} from '@/hooks/useOptimisticTasks';
 import {insertTask, removeTask} from '@/utils/optimisticTasks';
 import {
@@ -24,21 +28,17 @@ import {
   completeTaskAction,
   undoCompleteTaskAction,
 } from '@/actions/matrixActions';
+import {BoardHeader} from '@/components/domain/shared/BoardHeader';
 import {TaskModal} from '@/components/domain/shared/task-modal/TaskModal';
 import {Toast} from '@/components/ui/Toast';
 import {MatrixUndoToast} from './MatrixUndoToast';
 import {QuadrantCell} from './QuadrantCell';
 import {MobileMoveToSheet} from './MobileMoveToSheet';
 import {
-  FALLBACK_QUADRANT,
-  CREATE_PLAN_HREF,
-  TOAST_DURATION_MS,
-} from './constants';
-
-interface PriorityMatrixPageProps {
-  tasks: TaskItem[];
-  activePlan: MatrixActivePlan | null;
-}
+  PrioritiesPageContext,
+  type PrioritiesPageContextValue,
+} from './PrioritiesPageContext';
+import {CREATE_PLAN_HREF, TOAST_DURATION_MS} from './constants';
 
 /** The undo window's state: everything needed to put the card back. */
 interface UndoToastState {
@@ -53,10 +53,20 @@ interface UndoToastState {
   completed: Promise<boolean>;
 }
 
-export const PriorityMatrixPage = ({
+/**
+ * The Priorities page (/kanban/priorities): the app header above the 2×2
+ * Eisenhower matrix of one-offs, in a definite-height column (h-full against
+ * AppShell's <main>). Owns the page's state — the tasks as client state
+ * (drags, Track This Week and Done patch them optimistically), the open
+ * popover, the mobile sheet, the add modal and both toasts — and every
+ * write, which its components reach through PrioritiesPageContext rather
+ * than callback props.
+ */
+export const PrioritiesPage = ({
+  periodKey,
   tasks,
   activePlan,
-}: PriorityMatrixPageProps) => {
+}: PrioritiesPageData) => {
   const t = useTranslations('Priorities');
   const tQuadrant = useTranslations('Enums.PriorityQuadrant');
   const {localTasks, runOptimisticChange, runOptimisticTaskUpdate} =
@@ -64,7 +74,7 @@ export const PriorityMatrixPage = ({
   const [openPopoverTaskId, setOpenPopoverTaskId] = useState<string | null>(
     null,
   );
-  const [sheetTask, setSheetTask] = useState<TaskItem | null>(null);
+  const [sheetTaskId, setSheetTaskId] = useState<string | null>(null);
   // null = closed; quadrant undefined = mobile global add (modal shows its picker)
   const [addModal, setAddModal] = useState<{
     quadrant?: PriorityQuadrant;
@@ -75,26 +85,16 @@ export const PriorityMatrixPage = ({
   const [undoToast, setUndoToast] = useState<UndoToastState | null>(null);
 
   const activePlanId = activePlan?.id ?? null;
-  const isTrackedTask = (task: TaskItem) =>
-    activePlanId !== null && task.planId === activePlanId;
-
-  const byQuadrant = useMemo(() => {
-    const groups: Record<PriorityQuadrant, TaskItem[]> = {
-      [PriorityQuadrant.DO_FIRST]: [],
-      [PriorityQuadrant.SCHEDULE]: [],
-      [PriorityQuadrant.SQUEEZE_IN]: [],
-      [PriorityQuadrant.MAYBE_LATER]: [],
-    };
-    for (const task of localTasks) {
-      groups[
-        (task.quadrant as PriorityQuadrant | null) ?? FALLBACK_QUADRANT
-      ].push(task);
-    }
-    return groups;
-  }, [localTasks]);
+  const tasksByQuadrant = useMemo(
+    () => groupTasksByQuadrant(localTasks),
+    [localTasks],
+  );
+  const sheetTask = localTasks.find(({id}) => id === sheetTaskId) ?? null;
 
   const totalCount = localTasks.length;
-  const trackedCount = localTasks.filter(isTrackedTask).length;
+  const trackedCount = localTasks.filter(task =>
+    isTrackedTask(task, activePlanId),
+  ).length;
 
   function handleDragEnd(result: DropResult) {
     const {destination, source, draggableId} = result;
@@ -112,10 +112,10 @@ export const PriorityMatrixPage = ({
   }
 
   // Track This Week: optimistic dim + "This Week" tag + count bump, rollback on failure
-  function handleTrack(taskId: string, status: TrackTargetStatus) {
+  function trackTask(taskId: string, status: TrackTargetStatus) {
     if (!activePlanId) return;
     setOpenPopoverTaskId(null);
-    setSheetTask(null);
+    setSheetTaskId(null);
 
     runOptimisticTaskUpdate(
       taskId,
@@ -128,9 +128,9 @@ export const PriorityMatrixPage = ({
   // Complete One-off: the matrix never shows DONE tasks, so the card leaves
   // optimistically and a 5 s undo toast opens; on failure the card returns
   // to where it was and the toast is withdrawn. No confirm — act, then undo.
-  function handleComplete(taskId: string) {
+  function completeTask(taskId: string) {
     setOpenPopoverTaskId(null);
-    setSheetTask(null);
+    setSheetTaskId(null);
 
     const index = localTasks.findIndex(task => task.id === taskId);
     if (index === -1) return;
@@ -174,6 +174,19 @@ export const PriorityMatrixPage = ({
       'Failed to undo completion:',
     );
   }
+
+  const openAddTask = (quadrant?: PriorityQuadrant) => setAddModal({quadrant});
+
+  const pageContext: PrioritiesPageContextValue = {
+    activePlanId,
+    openPopoverTaskId,
+    togglePopover: taskId =>
+      setOpenPopoverTaskId(current => (current === taskId ? null : taskId)),
+    openMoveToSheet: setSheetTaskId,
+    openAddTask,
+    trackTask,
+    completeTask,
+  };
 
   // Keyed by task so a second completion restarts the countdown.
   const renderUndoToast = () => {
@@ -239,7 +252,7 @@ export const PriorityMatrixPage = ({
       <button
         type="button"
         title={t('addTaskLabel')}
-        onClick={() => setAddModal({})}
+        onClick={() => openAddTask()}
         className="md:hidden flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-content shadow-md shadow-primary/30 cursor-pointer"
       >
         <PlusIcon className="size-[18px] stroke-[2.5]" />
@@ -305,7 +318,7 @@ export const PriorityMatrixPage = ({
     </div>
   );
 
-  return (
+  const renderMatrix = () => (
     <DragDropContext
       onDragStart={() => setOpenPopoverTaskId(null)}
       onDragEnd={handleDragEnd}
@@ -321,14 +334,7 @@ export const PriorityMatrixPage = ({
               <QuadrantCell
                 key={quadrant}
                 quadrant={quadrant}
-                tasks={byQuadrant[quadrant]}
-                activePlanId={activePlanId}
-                openPopoverTaskId={openPopoverTaskId}
-                onSendToggle={setOpenPopoverTaskId}
-                onTrack={handleTrack}
-                onComplete={handleComplete}
-                onCardTap={setSheetTask}
-                onAdd={quadrant => setAddModal({quadrant})}
+                tasks={tasksByQuadrant[quadrant]}
               />
             ))}
           </div>
@@ -350,11 +356,7 @@ export const PriorityMatrixPage = ({
 
       <MobileMoveToSheet
         task={sheetTask}
-        isTracked={sheetTask !== null && isTrackedTask(sheetTask)}
-        hasActivePlan={activePlanId !== null}
-        onClose={() => setSheetTask(null)}
-        onTrack={handleTrack}
-        onComplete={handleComplete}
+        onClose={() => setSheetTaskId(null)}
       />
       <TaskModal
         isOpen={addModal !== null}
@@ -372,5 +374,14 @@ export const PriorityMatrixPage = ({
         quadrant={addModal?.quadrant}
       />
     </DragDropContext>
+  );
+
+  return (
+    <PrioritiesPageContext value={pageContext}>
+      <div className="flex flex-col h-full">
+        <BoardHeader periodKey={periodKey} />
+        {renderMatrix()}
+      </div>
+    </PrioritiesPageContext>
   );
 };
