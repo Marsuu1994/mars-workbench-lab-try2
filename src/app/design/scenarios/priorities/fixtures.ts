@@ -7,6 +7,7 @@ import {
 } from '@/utils/enums';
 import type {TaskItem} from '@/lib/db/tasks';
 import type {MatrixActivePlan} from '@/services/matrixService';
+import {toPrioritiesPageProps} from '@/utils/oneOffUtils';
 
 /* Priorities scenario fixtures — the real matrix page fed a populated
    Eisenhower spread with a couple of tracked (on-board) tasks. */
@@ -138,6 +139,14 @@ export const DONE_TASK: TaskItem = MATRIX_TASKS.find(
 export const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(
   t => t.id !== DONE_TASK.id,
 );
+
+/** The page's props as the route builds them: a fixture matrix through the
+    route's adapter, on the fixtures' day (so the no-plan header shows its
+    week). */
+export const prioritiesPage = (
+  tasks: TaskItem[],
+  activePlan: MatrixActivePlan | null,
+) => toPrioritiesPageProps({tasks, activePlan}, NOW);
 
 /** Play scope for one fixture card: @hello-pangea/dnd stamps each draggable
     with its id. */
