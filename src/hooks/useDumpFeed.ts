@@ -7,6 +7,7 @@ import {
   fetchDumpEntriesAction,
 } from '@/actions/dumpActions';
 import type {DumpEntryItem} from '@/lib/db/dumpEntries';
+import type {InitialDumpFeed} from '@/utils/dump';
 
 type ActionError = {
   formErrors: string[];
@@ -31,19 +32,13 @@ function extractError(error: ActionError | unknown, fallback: string): string {
 let tempCounter = 0;
 const nextTempId = () => `temp-${++tempCounter}`;
 
-interface DumpFeedInit {
-  entries: DumpEntryItem[];
-  nextCursor: string | null;
-  totalCount: number;
-}
-
 /**
  * Bridges the dump feed's local state to the server actions. Owns optimistic
  * capture (prepend a temp entry, reconcile with the server row, roll back on
  * error) and cursor-based load-more. Local state (not a store) — the feed is
  * page-scoped and server-seeded, mirroring PriorityMatrixPage.
  */
-export function useDumpFeed(initial: DumpFeedInit) {
+export function useDumpFeed(initial: InitialDumpFeed) {
   const tErrors = useTranslations('Errors');
   const genericError = tErrors('generic');
 

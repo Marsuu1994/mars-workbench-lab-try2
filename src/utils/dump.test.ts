@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
+import {getTodayDate} from './dateUtils';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +8,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +56,48 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  const entries = [
+    {
+      id: 'newest',
+      content: 'Book the dentist',
+      createdAt: new Date(MOMENTS.SUNDAY_NOON),
+    },
+  ];
+
+  it("opens on the first page, the count and the kanban day's week", () => {
+    // Sunday evening in Los Angeles is already next week's Monday in UTC
+    freezeTime(MOMENTS.SUNDAY_LATE);
+    expect(
+      toDumpPageProps(
+        {data: {entries, nextCursor: 'next-page'}},
+        41,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      entries,
+      nextCursor: 'next-page',
+      totalCount: 41,
+      periodKey: WEEK_KEY,
+    });
+  });
+
+  it('opens on an empty feed when the first page failed', () => {
+    freezeTime(MOMENTS.MONDAY_NOON);
+    expect(
+      toDumpPageProps(
+        {error: {formErrors: ['Invalid cursor'], fieldErrors: {}}},
+        3,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      entries: [],
+      nextCursor: null,
+      totalCount: 3,
+      periodKey: WEEK_KEY,
+    });
   });
 });

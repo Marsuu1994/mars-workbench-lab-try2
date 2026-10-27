@@ -53,5 +53,11 @@ Tomorrow: gym before standup, then a deep-work block till noon.`,
   ),
 ];
 
-/** Header week badge — dump is plan-independent, so a fixed recent week. */
-export const DUMP_PERIOD_KEY = '2026-W29';
+/** The first-page action results the route's adapter receives. nextCursor is
+ *  null so the infinite-scroll observer stays inert against the fixtures. */
+export const DUMP_FEED = {data: {entries: DUMP_FEED_ENTRIES, nextCursor: null}};
+export const EMPTY_DUMP_FEED = {data: {entries: [], nextCursor: null}};
+
+/** The adapter's today — dump is plan-independent, so the header badge is a
+ *  fixed recent week (2026-W29). */
+export const DUMP_TODAY = new Date(2026, 6, 15);
