@@ -22,15 +22,15 @@
 
 | Run | session | 创建（UTC） | 状态 | PR | T_pages | T_pr | T_green | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| A1 | `session_01KCt6pJaBvNn7yvCqBdL9ib` | 05:14:33 | completed | #10（05:33:51，head `8d1cb45d`） | | 12.4 | CI 绿 05:29:57 | $9.16 |
-| B1 | `session_01KCt6pMxatw9JrN3TasCRUY` | 05:14:34 | completed | #10（05:33:51，head `8d1cb45d`） | | 17.0 | CI 绿 05:34:47 | $9.16 |
-| A2 | `session_01KCt6pNEEiysMZJhTNDRjPF` | 05:14:35 | completed | #10（05:33:51，head `8d1cb45d`） | | 15.1 | CI 绿 05:33:09 | $9.16 |
-| B2 | `session_01KCt6pMa91jhjUM2oez842a` | 05:14:36 | completed | #10（05:33:51，head `8d1cb45d`） | | 15.4 | CI 绿 05:33:04 | $9.16 |
-| A3 | `session_01KCt6pJr7csnx2HnTic3q2U` | 05:14:37 | completed | #10（05:33:51，head `8d1cb45d`） | | 15.2 | CI 绿 05:32:50 | $9.16 |
-| B3 | `session_01KCt6pLaQcffbbgWyRsYruK` | 05:14:38 | completed | #10（05:33:51，head `8d1cb45d`） | | 17.4 | CI 绿 05:35:11 | $9.16 |
-| A4 | `session_01KCt6pJKhmnyCUuHCYcfmPq` | 05:14:38 | completed | #10（05:33:51，head `8d1cb45d`） | | 12.4 | CI 绿 05:29:55 | $9.16 |
-| B4 | `session_01KCt6pJqa8KhamA3TH91m92` | 05:14:39 | completed | #10（05:33:51，head `8d1cb45d`） | | 16.9 | CI 绿 05:34:43 | $9.16 |
-| A5 | `session_01KCt6pK3LZBUahDFNY2DecX` | 05:14:40 | completed | #10（05:33:51，head `8d1cb45d`） | | 13.7 | CI 绿 05:31:11 | $9.16 |
+| A1 | `session_01KCt6pJaBvNn7yvCqBdL9ib` | 05:14:33 | completed | #1（05:26:56，head `6ef9dad8`） | | 12.4 | CI 绿 05:29:57 | $6.66 |
+| B1 | `session_01KCt6pMxatw9JrN3TasCRUY` | 05:14:34 | completed | #8（05:31:35，head `c2e7e88a`） | | 17.0 | CI 绿 05:34:47 | $8.37 |
+| A2 | `session_01KCt6pNEEiysMZJhTNDRjPF` | 05:14:35 | completed | #4（05:29:41，head `d723edbb`） | | 15.1 | CI 绿 05:33:09 | $6.45 |
+| B2 | `session_01KCt6pMa91jhjUM2oez842a` | 05:14:36 | completed | #6（05:30:02，head `e50c7afb`） | | 15.4 | CI 绿 05:33:04 | $8.22 |
+| A3 | `session_01KCt6pJr7csnx2HnTic3q2U` | 05:14:37 | completed | #5（05:29:52，head `2ed0bbe6`） | | 15.2 | CI 绿 05:32:50 | $5.93 |
+| B3 | `session_01KCt6pLaQcffbbgWyRsYruK` | 05:14:38 | completed | #9（05:32:02，head `0cab8f6f`） | | 17.4 | CI 绿 05:35:11 | $9.72 |
+| A4 | `session_01KCt6pJKhmnyCUuHCYcfmPq` | 05:14:38 | completed | #2（05:27:02，head `0abeb057`） | | 12.4 | CI 绿 05:29:55 | $5.95 |
+| B4 | `session_01KCt6pJqa8KhamA3TH91m92` | 05:14:39 | completed | #7（05:31:32，head `ba75fce9`） | | 16.9 | CI 绿 05:34:43 | $11.26 |
+| A5 | `session_01KCt6pK3LZBUahDFNY2DecX` | 05:14:40 | completed | #3（05:28:20，head `92bc898e`） | | 13.7 | CI 绿 05:31:11 | $6.48 |
 | B5 | `session_01KCt6pLLUiRAHZu45QycSRC` | 05:14:41 | idle（PR 开了，等 CI） | #10（05:33:51，head `8d1cb45d`） | | 19.2 | CI 跑着（05:33:55 起） | $9.16 |
 
 ## 事故
