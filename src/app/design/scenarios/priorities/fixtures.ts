@@ -7,10 +7,16 @@ import {
 } from '@/utils/enums';
 import type {TaskItem} from '@/lib/db/tasks';
 import type {MatrixActivePlan} from '@/services/matrixService';
+import {
+  toPrioritiesPageProps,
+  type PrioritiesPageData,
+} from '@/utils/oneOffUtils';
 
 /* Priorities scenario fixtures — the real matrix page fed a populated
    Eisenhower spread with a couple of tracked (on-board) tasks. */
 
+/** The scenarios' today: in the active plan's week, so the header shows
+    2026-W28 with or without the plan. */
 const NOW = new Date('2026-07-10T15:00:00');
 
 export const SCENARIO_ACTIVE_PLAN: MatrixActivePlan = {
@@ -60,7 +66,7 @@ const SHEET_TASK_ID = 'scn-move-sheet';
 /** The tracked card shown in the mobile sheet's Done-only state. */
 const SHEET_TRACKED_TASK_ID = 'scn-move-sheet-tracked';
 
-export const MATRIX_TASKS: TaskItem[] = [
+const MATRIX_TASKS: TaskItem[] = [
   // Do First — one tracked (dimmed, This Week tag), one actionable
   task({
     id: TRACKED_POPOVER_TASK_ID,
@@ -135,11 +141,29 @@ export const DONE_TASK: TaskItem = MATRIX_TASKS.find(
 
 /** The matrix right after DONE_TASK was marked done — the page drops the
     card optimistically, so the composed Done-toast tabs render this. */
-export const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(
-  t => t.id !== DONE_TASK.id,
-);
+const MATRIX_TASKS_AFTER_DONE = MATRIX_TASKS.filter(t => t.id !== DONE_TASK.id);
 
 /** Play scope for one fixture card: @hello-pangea/dnd stamps each draggable
     with its id. */
 export const matrixCard = (taskId: string) =>
   `[data-rfd-draggable-id="${taskId}"]`;
+
+/** The page's props for a fixture matrix, through the route's own adapter. */
+const matrixPage = (
+  tasks: TaskItem[],
+  activePlan: MatrixActivePlan | null,
+): PrioritiesPageData => toPrioritiesPageProps({tasks, activePlan}, NOW);
+
+/** The populated matrix, with and without this week's plan. */
+export const MATRIX_PAGE = matrixPage(MATRIX_TASKS, SCENARIO_ACTIVE_PLAN);
+export const MATRIX_PAGE_NO_PLAN = matrixPage(MATRIX_TASKS, null);
+
+/** The matrix right after DONE_TASK was marked done, with and without a plan. */
+export const MATRIX_PAGE_AFTER_DONE = matrixPage(
+  MATRIX_TASKS_AFTER_DONE,
+  SCENARIO_ACTIVE_PLAN,
+);
+export const MATRIX_PAGE_AFTER_DONE_NO_PLAN = matrixPage(
+  MATRIX_TASKS_AFTER_DONE,
+  null,
+);
