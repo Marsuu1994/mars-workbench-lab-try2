@@ -1,34 +1,20 @@
-import {DumpScreen} from '@/components/domain/dump/DumpScreen';
+import {DumpPage} from '@/components/domain/dump/DumpPage';
 import {ScenarioTabs, type ScenarioTab} from '../ScenarioTabs';
 import {ScenarioPage} from '../ScenarioPage';
-import {DUMP_FEED_ENTRIES, DUMP_PERIOD_KEY} from './fixtures';
+import {DUMP_EMPTY_PAGE, DUMP_FEED_PAGE} from './fixtures';
 
 const DUMP_SCENARIOS: ScenarioTab[] = [
   {
     label: 'Feed',
     title: 'Dump — populated feed',
     note: 'Day-grouped entries (Today / Yesterday / older) with one long entry showing the 6-line clamp + Show more. initialNextCursor is null so the infinite-scroll observer stays inert against the fixtures.',
-    content: (
-      <DumpScreen
-        periodKey={DUMP_PERIOD_KEY}
-        initialEntries={DUMP_FEED_ENTRIES}
-        initialNextCursor={null}
-        initialTotalCount={DUMP_FEED_ENTRIES.length}
-      />
-    ),
+    content: <DumpPage {...DUMP_FEED_PAGE} />,
   },
   {
     label: 'Empty',
     title: 'Dump — empty',
     note: 'First visit: the composer over the empty-state feed.',
-    content: (
-      <DumpScreen
-        periodKey={DUMP_PERIOD_KEY}
-        initialEntries={[]}
-        initialNextCursor={null}
-        initialTotalCount={0}
-      />
-    ),
+    content: <DumpPage {...DUMP_EMPTY_PAGE} />,
   },
 ];
 
