@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
+import {getTodayDate} from './dateUtils';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +8,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +56,36 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  const entry = {
+    id: 'entry-1',
+    content: 'Book the dentist',
+    createdAt: new Date(MOMENTS.WEDNESDAY_NOON),
+  };
+
+  it("starts the feed from its first page, under today's week", () => {
+    freezeTime(MOMENTS.WEDNESDAY_NOON);
+    expect(
+      toDumpPageProps(
+        {data: {entries: [entry], nextCursor: 'cursor-2'}},
+        21,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: [entry],
+      initialNextCursor: 'cursor-2',
+      initialTotalCount: 21,
+    });
+  });
+
+  it('starts an empty feed when the first page failed', () => {
+    freezeTime(MOMENTS.WEDNESDAY_NOON);
+    expect(toDumpPageProps({error: 'failed'}, 0, getTodayDate())).toMatchObject(
+      {initialEntries: [], initialNextCursor: null},
+    );
   });
 });
