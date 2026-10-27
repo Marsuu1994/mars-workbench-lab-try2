@@ -1,42 +1,92 @@
 {
   "A1": {
     "session": "session_01KCt6pJaBvNn7yvCqBdL9ib",
-    "created": "2026-10-27T05:14:33Z"
+    "created": "2026-10-27T05:14:33Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 12.4
   },
   "B1": {
     "session": "session_01KCt6pMxatw9JrN3TasCRUY",
-    "created": "2026-10-27T05:14:34Z"
+    "created": "2026-10-27T05:14:34Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 17.0
   },
   "A2": {
     "session": "session_01KCt6pNEEiysMZJhTNDRjPF",
-    "created": "2026-10-27T05:14:35Z"
+    "created": "2026-10-27T05:14:35Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 15.1
   },
   "B2": {
     "session": "session_01KCt6pMa91jhjUM2oez842a",
-    "created": "2026-10-27T05:14:36Z"
+    "created": "2026-10-27T05:14:36Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 15.4
   },
   "A3": {
     "session": "session_01KCt6pJr7csnx2HnTic3q2U",
-    "created": "2026-10-27T05:14:37Z"
+    "created": "2026-10-27T05:14:37Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 15.2
   },
   "B3": {
     "session": "session_01KCt6pLaQcffbbgWyRsYruK",
-    "created": "2026-10-27T05:14:38Z"
+    "created": "2026-10-27T05:14:38Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 17.4
   },
   "A4": {
     "session": "session_01KCt6pJKhmnyCUuHCYcfmPq",
-    "created": "2026-10-27T05:14:38Z"
+    "created": "2026-10-27T05:14:38Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 12.4
   },
   "B4": {
     "session": "session_01KCt6pJqa8KhamA3TH91m92",
-    "created": "2026-10-27T05:14:39Z"
+    "created": "2026-10-27T05:14:39Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 16.9
   },
   "A5": {
     "session": "session_01KCt6pK3LZBUahDFNY2DecX",
-    "created": "2026-10-27T05:14:40Z"
+    "created": "2026-10-27T05:14:40Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 13.7
   },
   "B5": {
     "session": "session_01KCt6pLLUiRAHZu45QycSRC",
-    "created": "2026-10-27T05:14:41Z"
+    "created": "2026-10-27T05:14:41Z",
+    "pr": 10,
+    "pr_created": "2026-10-27T05:33:51Z",
+    "head": "8d1cb45d",
+    "cost_usd": 9.16,
+    "t_pr_min": 19.2
   }
 }
