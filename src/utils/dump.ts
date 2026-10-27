@@ -1,9 +1,15 @@
 /**
  * Dump feature constants + client-safe date helpers — shared by the zod schema,
- * the server action's paging, and the composer/feed UI (textarea maxLength,
- * skeletons, day grouping).
+ * the server action's paging, the route's page adapter and the composer/feed
+ * UI (textarea maxLength, skeletons, day grouping).
  */
-import {KANBAN_TZ, formatDayLabel, formatKanbanISODate} from './dateUtils';
+import type {DumpEntriesPage, DumpPageData} from '@/types/dump';
+import {
+  KANBAN_TZ,
+  formatDayLabel,
+  formatKanbanISODate,
+  getISOWeekKey,
+} from './dateUtils';
 
 export const DUMP_PAGE_SIZE = 20;
 export const DUMP_ENTRY_MAX_LENGTH = 10000;
@@ -75,4 +81,23 @@ export function groupEntriesByDay<T extends {createdAt: Date}>(
     current.entries.push(entry);
   }
   return groups;
+}
+
+/**
+ * The Dump page's props from its two read actions. Dump is plan-independent,
+ * so the header's week is `today`'s ISO week. The cursorless first page can
+ * only succeed; the (unreachable) error branch falls back to an empty feed so
+ * the types stay honest.
+ */
+export function toDumpPageProps(
+  feed: {data: DumpEntriesPage} | {error: unknown},
+  totalCount: number,
+  today: Date,
+): DumpPageData {
+  const {entries, nextCursor} =
+    'data' in feed ? feed.data : {entries: [], nextCursor: null};
+  return {
+    periodKey: getISOWeekKey(today),
+    initialFeed: {entries, nextCursor, totalCount},
+  };
 }
