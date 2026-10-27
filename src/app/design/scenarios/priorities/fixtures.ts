@@ -13,6 +13,9 @@ import type {MatrixActivePlan} from '@/services/matrixService';
 
 const NOW = new Date('2026-07-10T15:00:00');
 
+/** The day the page is read on: with no plan, the header shows its week. */
+export const SCENARIO_TODAY = NOW;
+
 export const SCENARIO_ACTIVE_PLAN: MatrixActivePlan = {
   id: 'scn-plan',
   periodKey: '2026-W28',
