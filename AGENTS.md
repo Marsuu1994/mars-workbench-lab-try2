@@ -229,6 +229,7 @@ npm test             # Unit + integration tests in UTC and Los Angeles time (a l
 npm run test:unit    # Unit tests only, no database
 npm run test:coverage  # Everything, failing below the coverage floors (CI)
 npm run test:e2e     # Playwright on the local stack as the e2e user (CI); reuses a running dev server
+npm run check:clicks # Click through the Board, Priorities and Dump pages as the e2e user (a running dev server and `npm run e2e:session -- .auth/e2e-session.json` first)
 npm run up           # One-click start: setup, then the dev server (fresh checkout or any day)
 npm run setup        # .env.local, npm install, db:setup — no dev server (`-- --no-db` stops after install)
 npm run db:setup     # Start the local Supabase stack, migrate, seed (safe to rerun)
