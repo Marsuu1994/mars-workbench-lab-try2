@@ -11,6 +11,7 @@ import type {TaskItem} from '@/lib/db/tasks';
 import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
+import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
@@ -663,6 +664,12 @@ export const PROJECT_STEP_FIXTURES: {
     }),
   },
 ];
+
+/** The page context a MobileBacklogCard renders in outside the Board page
+    (the gallery specimen, the inline backlog sheet): inert handlers. */
+export const inertBoardPageContext = (): BoardPageContextValue => ({
+  pullToTodo: () => undefined,
+});
 
 /** The page context a ProjectStep specimen renders in, outside the Projects
     page: the fixture's plan, inert handlers (the frame swallows clicks). */
