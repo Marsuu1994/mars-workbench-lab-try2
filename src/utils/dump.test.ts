@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
+import {getTodayDate} from './dateUtils';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +8,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +56,48 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  const entries = [
+    {
+      id: 'sunday',
+      content: 'Book the dentist',
+      createdAt: new Date(MOMENTS.SUNDAY_NOON),
+    },
+  ];
+
+  it("seeds the page with the first feed page, the total and today's week", () => {
+    // Sunday evening in Los Angeles is already Monday in UTC
+    freezeTime(MOMENTS.SUNDAY_LATE);
+    expect(
+      toDumpPageProps(
+        {data: {entries, nextCursor: 'next-page'}},
+        21,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      entries,
+      nextCursor: 'next-page',
+      totalCount: 21,
+      periodKey: WEEK_KEY,
+    });
+  });
+
+  it('falls back to an empty feed when the page failed', () => {
+    freezeTime(MOMENTS.SUNDAY_LATE);
+    expect(
+      toDumpPageProps(
+        {error: {formErrors: ['failed'], fieldErrors: {}}},
+        3,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      entries: [],
+      nextCursor: null,
+      totalCount: 3,
+      periodKey: WEEK_KEY,
+    });
   });
 });
