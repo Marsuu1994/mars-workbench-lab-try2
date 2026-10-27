@@ -13,6 +13,7 @@ import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
 import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
+import type {PrioritiesPageContextValue} from '@/components/domain/priorities/PrioritiesPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
 /** Title halves — the accent word renders with fx-text-gradient (the
@@ -419,13 +420,11 @@ export const STEP_PATH_FIXTURES: {label: string; step: ProjectStepContext}[] = [
 ];
 
 // ── Matrix card fixtures ─────────────────────────────────────────────────────
-export interface MatrixCardFixture {
-  label: string;
-  task: TaskItem;
-  isTracked: boolean;
-}
 
-export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
+/** The plan the matrix card specimens' tracked card sits on. */
+export const MATRIX_CARD_ACTIVE_PLAN_ID = 'gallery-matrix-plan';
+
+export const MATRIX_CARD_FIXTURES: {label: string; task: TaskItem}[] = [
   {
     label: 'Default (hover for send)',
     task: baseTask({
@@ -439,7 +438,6 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       planId: null,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: false,
   },
   {
     label: 'Tracked (This Week)',
@@ -448,12 +446,27 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       type: TaskType.AD_HOC,
       title: 'Shop birthday gift',
       description: 'For mom — this Saturday',
+      planId: MATRIX_CARD_ACTIVE_PLAN_ID,
       status: TaskStatus.TODO,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: true,
   },
 ];
+
+/** The page context a MatrixTaskCard or Move-to specimen renders in, outside
+    the Priorities page: the fixture's plan, no popover open, inert handlers
+    (the frame swallows clicks). */
+export const inertPrioritiesPageContext = (
+  activePlanId: string | null,
+): PrioritiesPageContextValue => ({
+  activePlanId,
+  openPopoverTaskId: null,
+  togglePopover: () => undefined,
+  openMoveToSheet: () => undefined,
+  openAddTask: () => undefined,
+  trackTask: () => undefined,
+  completeTask: () => undefined,
+});
 
 // ── Progress dashboard fixture ───────────────────────────────────────────────
 export const PROGRESS_FIXTURE = {
