@@ -1,9 +1,15 @@
 /**
- * Dump feature constants + client-safe date helpers — shared by the zod schema,
- * the server action's paging, and the composer/feed UI (textarea maxLength,
- * skeletons, day grouping).
+ * Dump feature constants + client-safe helpers — shared by the zod schema,
+ * the server action's paging, the route's page adapter, and the composer/feed
+ * UI (textarea maxLength, skeletons, day grouping).
  */
-import {KANBAN_TZ, formatDayLabel, formatKanbanISODate} from './dateUtils';
+import type {DumpEntryItem} from '@/lib/db/dumpEntries';
+import {
+  KANBAN_TZ,
+  formatDayLabel,
+  formatKanbanISODate,
+  getISOWeekKey,
+} from './dateUtils';
 
 export const DUMP_PAGE_SIZE = 20;
 export const DUMP_ENTRY_MAX_LENGTH = 10000;
@@ -75,4 +81,41 @@ export function groupEntriesByDay<T extends {createdAt: Date}>(
     current.entries.push(entry);
   }
   return groups;
+}
+
+/** The feed's first page as `fetchDumpEntriesAction` returns it. */
+type DumpFeedResult =
+  | {data: {entries: DumpEntryItem[]; nextCursor: string | null}}
+  | {error: unknown};
+
+/**
+ * What the Dump page renders from: the header's week, and the feed's first
+ * page and total, which the page seeds its client-side feed with.
+ */
+export interface DumpPageProps {
+  periodKey: string;
+  initialEntries: DumpEntryItem[];
+  initialNextCursor: string | null;
+  initialTotalCount: number;
+}
+
+/**
+ * The route's adapter from the two read actions to the Dump page's props.
+ * Dump is plan-independent, so the header shows `today`'s ISO week. The
+ * cursorless first page can only succeed; the (unreachable) error falls back
+ * to an empty feed so the types stay honest.
+ */
+export function toDumpPageProps(
+  feed: DumpFeedResult,
+  totalCount: number,
+  today: Date,
+): DumpPageProps {
+  const {entries, nextCursor} =
+    'data' in feed ? feed.data : {entries: [], nextCursor: null};
+  return {
+    periodKey: getISOWeekKey(today),
+    initialEntries: entries,
+    initialNextCursor: nextCursor,
+    initialTotalCount: totalCount,
+  };
 }
