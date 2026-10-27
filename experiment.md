@@ -10,7 +10,8 @@
 | 1 前置 | 04:58 | 05:14 | worktree `/home/user/base-try2`；起点 `experiment/base-try2` = `83ae5a43` 推到 lab（05:13）；基线：format/lint/typecheck/knip 绿，npm test 416 通过，check:clicks 16/16 · 0 console error（64 s），design-console e2e 7/7；工具在 `experiments/_tools/`；20 份 prompt 冻结在 `try2/prompts/` |
 | 2 起 run | 05:14 | 05:34 | 十个 session 05:14:33–05:14:41 创建，base `83ae5a43`，model claude-opus-5-5，env 现有；首次检查 05:35，之后每 30 min；心跳每小时；05:36 首次检查时十个 PR 都已开（05:26:56–05:33:51），九个 session completed，B5 等 CI |
 | 3 结束条件 | 05:36 | | 九个 CI 绿，B5 的跑着 |
-| 4 收数据 | 05:40 | | 行为检查串行批跑起（A1,B1,…）；十个 transcript subagent |
+| 4 收数据 | 05:40 | | 行为检查串行批跑起（A1,B1,…）；十个 transcript subagent 05:41 起、十个清单 subagent 05:45 起；05:46 撞到账号用量限制（21 个 subagent 并发），05:50 重置后 05:52 先恢复 11 个 transcript/首检 subagent，清单的稍后 |
+| 5 盲审 | 05:52 | | 十个 review 分支 05:52–05:54 建好推到 lab（base commit `c9784f40`，scrub 泄漏 grep 只剩通用条目）；十个评审 session 05:54:36–05:54:44 创建 |
 
 ## 协议偏差 / 判断
 
@@ -33,11 +34,27 @@
 | A5 | `session_01KCt6pK3LZBUahDFNY2DecX` | 05:14:40 | completed | #3（05:28:20，head `92bc898e`） | | 13.7 | CI 绿 05:31:11 | $6.48 |
 | B5 | `session_01KCt6pLLUiRAHZu45QycSRC` | 05:14:41 | idle（PR 开了，等 CI） | #10（05:33:51，head `8d1cb45d`） | | 19.2 | CI 跑着（05:33:55 起） | $9.16 |
 
+## 首次检查（05:36）
+
+- 十个 run 全部在 05:26:56–05:33:51 开出 PR，九个 session completed，B5 等 CI（05:38:13 绿）。CI 十个都第一次就绿。
+- B 组五个都合规：`setup -- --no-db` 结束后 23–35 s 内一条消息里派出三个 worktree agent，没有等数据库（db-setup.log 第一次被看是第一次 cherry-pick 时，约 05:18–05:19）；主 session 没自己写页面代码（B4 在合并时 Edit 过一次 `src/app/design/constants.ts` 解冲突）。五个都在 Priorities agent 还在跑时先 cherry-pick 了 Board 和 Dump。
+- effort：init 事件里没有 effort 字段（只有 `per_turn_effort_active: true`），`get_session` 也没有；按配置（起点的 `.claude/settings.json`）应为 high，未能验证。
+
 ## 事故
 
-（无）
+- 05:46 账号用量限制（"session limit", 05:50 重置）打断了 21 个 subagent（10 transcript、10 清单、1 首检）；都从断点恢复，没有数据丢失。
 
 ## 评审 session
 
 | R | session | 状态 |
 | --- | --- | --- |
+| R1 | `session_01KCt6pLmW7pbkc8N5AYCfHi` | working（05:54 创建） |
+| R2 | `session_01KCt6pLjii8hGXpQuDQbyZ3` | working（05:54 创建） |
+| R3 | `session_01KCt6pMxyxJLEfCpQL2sLKi` | working（05:54 创建） |
+| R4 | `session_01KCt6pMy88qbg4DRcfJupLJ` | working（05:54 创建） |
+| R5 | `session_01KCt6pK3geD5XxZqtY3SB4g` | working（05:54 创建） |
+| R6 | `session_01KCt6pMk1qy7WjCHRAvuMCg` | working（05:54 创建） |
+| R7 | `session_01KCt6pNLN4wDvSzvZSmLzJu` | working（05:54 创建） |
+| R8 | `session_01KCt6pLAAr9Dvk7pNTK56Lf` | working（05:54 创建） |
+| R9 | `session_01KCt6pMad3TEgd2M8nEtfbn` | working（05:54 创建） |
+| R10 | `session_01KCt6pHruDYkUaMWkqvdXR1` | working（05:54 创建） |
