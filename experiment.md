@@ -10,8 +10,8 @@
 | 1 前置 | 04:58 | 05:14 | worktree `/home/user/base-try2`；起点 `experiment/base-try2` = `83ae5a43` 推到 lab（05:13）；基线：format/lint/typecheck/knip 绿，npm test 416 通过，check:clicks 16/16 · 0 console error（64 s），design-console e2e 7/7；工具在 `experiments/_tools/`；20 份 prompt 冻结在 `try2/prompts/` |
 | 2 起 run | 05:14 | 05:34 | 十个 session 05:14:33–05:14:41 创建，base `83ae5a43`，model claude-opus-5-5，env 现有；首次检查 05:35，之后每 30 min；心跳每小时；05:36 首次检查时十个 PR 都已开（05:26:56–05:33:51），九个 session completed，B5 等 CI |
 | 3 结束条件 | 05:36 | | 九个 CI 绿，B5 的跑着 |
-| 4 收数据 | 05:40 | | 行为检查串行批跑起（A1,B1,…）；十个 transcript subagent 05:41 起、十个清单 subagent 05:45 起；05:46 撞到账号用量限制（21 个 subagent 并发），05:50 重置后 05:52 先恢复 11 个 transcript/首检 subagent，清单的稍后 |
-| 5 盲审 | 05:52 | | 十个 review 分支 05:52–05:54 建好推到 lab（base commit `c9784f40`，scrub 泄漏 grep 只剩通用条目）；十个评审 session 05:54:36–05:54:44 创建 |
+| 4 收数据 | 05:40 | | 行为检查串行批跑起（A1,B1,…）；十个 transcript subagent 05:41 起、十个清单 subagent 05:45 起；05:46 撞到账号用量限制（21 个 subagent 并发），05:50 重置后 05:52 先恢复 11 个 transcript/首检 subagent，清单的稍后（05:58 先恢复 5 个）；行为检查 05:41–05:55 十个分支都 16/16、0 console error（每个分支约 80 s，冷服务器也没失败） |
+| 5 盲审 | 05:52 | 暂停 | 十个 review 分支 05:52–05:54 建好推到 lab（base commit `c9784f40`，scrub 泄漏 grep 只剩通用条目）；十个评审 session 05:54:36–05:54:44 创建 |
 
 ## 协议偏差 / 判断
 
@@ -40,9 +40,20 @@
 - B 组五个都合规：`setup -- --no-db` 结束后 23–35 s 内一条消息里派出三个 worktree agent，没有等数据库（db-setup.log 第一次被看是第一次 cherry-pick 时，约 05:18–05:19）；主 session 没自己写页面代码（B4 在合并时 Edit 过一次 `src/app/design/constants.ts` 解冲突）。五个都在 Priorities agent 还在跑时先 cherry-pick 了 Board 和 Dump。
 - effort：init 事件里没有 effort 字段（只有 `per_turn_effort_active: true`），`get_session` 也没有；按配置（起点的 `.claude/settings.json`）应为 high，未能验证。
 
+## PR 描述里看到的（05:59）
+
+- 十个 PR 都是 4 个 commit、无 merge commit，CI 第一次推就绿，自报 e2e 26/26、check:clicks 16/16、ui-verifier PASS（起点修掉 play-step 问题后六个 run 提到 390 px 下桌面 tab 的 play 会打开手机 sheet，都判为 pre-existing、不改）。
+- Spike 归档：A1、A2、A3 归档并改链接（含用 sed 改 experiment 文件里的路径、没打开）；A4、A5 和 B 组五个都不归档（理由都是 Q9 结果要写进 spike、experiment 文件链接着它）。
+- B4：三个 agent 的 worktree 建在 `96d9c63`（lab 的 main）而不是起点 `83ae5a4`，agent 各自把 commit 挪到起点上再提交；worktree 里 knip 报 `scripts/` 未用（起点本身就这样，主 checkout 干净）。
+- B1、B3：grep 链接时打印了 experiment 文件的几行（没打开文件），PR 里自己披露。
+- Priorities 的页面类型放哪：B2 放在 `utils/`（和 try1 的 B1 一样），B4、B5 的主 session 把 agent 放在 utils 的类型挪到 `types/`；A 组都在 `types/`。
+
 ## 事故
 
-- 05:46 账号用量限制（"session limit", 05:50 重置）打断了 21 个 subagent（10 transcript、10 清单、1 首检）；都从断点恢复，没有数据丢失。
+- 05:46 账号用量限制（five_hour 窗口，05:50 重置）打断了 21 个 subagent（10 transcript、10 清单、1 首检）；05:52 恢复了 11 个，05:58 又恢复 5 个清单的，05:54 起了十个评审 session。
+- 05:59–06:05 新窗口（05:50–10:50）在约 9 分钟内被耗尽：十个评审 session（fable，high，每个 $2.7–4.2、cache read 1.6–3.4M）+ 17 个 subagent（fable，继承主 session 的 effort max）+ 主 session 自己（context 46 万 token，每次工具往返都重读）。九个评审 session 中途 failed（R1–R3、R5–R10），R4 显示 review_ready；清单审计 0/10 写出；transcript 8/10 写出（缺 B4、B5）；PR 描述导出的 subagent 没来得及写文件。
+- 11:18 限制重置后按 owner 要求暂停：没有恢复任何 subagent 或评审 session，心跳任务已停（trig_019H7aDpmxErKvst3RUrxTbN enabled=false），等 owner 决定怎么继续。
+- 原因分析见给 owner 的消息（11:20）。
 
 ## 评审 session
 
