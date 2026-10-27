@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {MOMENTS, freezeTime} from '../../test/time';
+import {MOMENTS, WEEK_KEY, freezeTime} from '../../test/time';
+import {getTodayDate} from './dateUtils';
 import {
   dumpDayKey,
   dumpTodayKey,
@@ -7,6 +8,7 @@ import {
   formatDumpTime,
   groupEntriesByDay,
   shiftDayKey,
+  toDumpPageProps,
 } from './dump';
 
 afterEach(() => {
@@ -54,5 +56,35 @@ describe('groupEntriesByDay', () => {
       ['2026-10-12', 'Mon, Oct 12', ['monday-late', 'monday']],
       ['2026-10-18', 'Sun, Oct 18', ['sunday']],
     ]);
+  });
+});
+
+describe('toDumpPageProps', () => {
+  const entries = [
+    {id: 'entry', content: 'Call the dentist', createdAt: new Date()},
+  ];
+
+  it("hands the first page on and heads it with the kanban day's week", () => {
+    // Sunday evening in Los Angeles is already Monday in UTC
+    freezeTime(MOMENTS.SUNDAY_LATE);
+    expect(
+      toDumpPageProps(
+        {data: {entries, nextCursor: 'next'}},
+        21,
+        getTodayDate(),
+      ),
+    ).toEqual({
+      periodKey: WEEK_KEY,
+      initialEntries: entries,
+      initialNextCursor: 'next',
+      initialTotalCount: 21,
+    });
+  });
+
+  it('falls back to an empty feed on an error', () => {
+    freezeTime(MOMENTS.WEDNESDAY_NOON);
+    const props = toDumpPageProps({error: 'invalid'}, 0, getTodayDate());
+    expect(props.initialEntries).toEqual([]);
+    expect(props.initialNextCursor).toBeNull();
   });
 });
