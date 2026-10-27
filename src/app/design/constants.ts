@@ -12,6 +12,7 @@ import type {DumpEntryItem} from '@/lib/db/dumpEntries';
 import {TaskKind, type HabitWeek} from '@/utils/taskUtils';
 import type {BoardCard, ProjectStepContext} from '@/utils/boardCardUtils';
 import type {BoardPageContextValue} from '@/components/domain/board/BoardPageContext';
+import type {PrioritiesPageContextValue} from '@/components/domain/priorities/PrioritiesPageContext';
 import type {ProjectsPageContextValue} from '@/components/domain/projects/ProjectsPageContext';
 
 // ── Page copy ──────────────────────────────────────────────────────────────
@@ -419,10 +420,13 @@ export const STEP_PATH_FIXTURES: {label: string; step: ProjectStepContext}[] = [
 ];
 
 // ── Matrix card fixtures ─────────────────────────────────────────────────────
+/** The plan the MatrixTaskCard specimens' context names: a card on it is
+    tracked. */
+export const MATRIX_CARD_ACTIVE_PLAN_ID = 'plan-1';
+
 export interface MatrixCardFixture {
   label: string;
   task: TaskItem;
-  isTracked: boolean;
 }
 
 export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
@@ -439,7 +443,6 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       planId: null,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: false,
   },
   {
     label: 'Tracked (This Week)',
@@ -449,9 +452,9 @@ export const MATRIX_CARD_FIXTURES: MatrixCardFixture[] = [
       title: 'Shop birthday gift',
       description: 'For mom — this Saturday',
       status: TaskStatus.TODO,
+      planId: MATRIX_CARD_ACTIVE_PLAN_ID,
       quadrant: PriorityQuadrant.DO_FIRST,
     }),
-    isTracked: true,
   },
 ];
 
@@ -669,6 +672,21 @@ export const PROJECT_STEP_FIXTURES: {
     (the gallery specimen, the inline backlog sheet): inert handlers. */
 export const inertBoardPageContext = (): BoardPageContextValue => ({
   pullToTodo: () => undefined,
+});
+
+/** The page context a Priorities component renders in outside the page (the
+    MatrixTaskCard specimens, the inline Move-to sheet): the fixture's plan,
+    nothing open, inert handlers. */
+export const inertPrioritiesPageContext = (
+  activePlanId: string | null,
+): PrioritiesPageContextValue => ({
+  activePlanId,
+  openPopoverTaskId: null,
+  togglePopover: () => undefined,
+  openMoveToSheet: () => undefined,
+  openAddTask: () => undefined,
+  trackTask: () => undefined,
+  completeTask: () => undefined,
 });
 
 /** The page context a ProjectStep specimen renders in, outside the Projects
