@@ -74,6 +74,11 @@
 | R9 | `session_01KCt6pMad3TEgd2M8nEtfbn` | working（05:54 创建） |
 | R10 | `session_01KCt6pHruDYkUaMWkqvdXR1` | working（05:54 创建） |
 
+## 2026-10-28 owner 宣告 try2 失败
+
+- owner 宣告 try2 失败（结果不采用），暂不清理：session 不归档、lab 仓库不动、归档分支不改；owner 要先 review instruction。owner 的看法：run 的代码没必要保留（都在 lab 仓库），归档留一份 high level 的 instruction 就够；下一轮要把 budget 纳入 setup（主 session、run、评审的模型分开定）。
+- 已有的 run 阶段数据完整可用（十个 run 的 T_pr、T_green、成本、行为检查、B 组合规），缺的是清单审计和盲审。
+
 ## 待 owner 决定（随继续的指示一起）
 
 1. patch 的处理：去掉（留 diffstat，lab 仓库归档不删）/ 推 run 分支到主仓库 / 只留推荐 run 的 / 保持并加 `.ignore`。去掉的话：加删除 commit，还是从分支历史里拿掉 `ec1647e` 再 force push。
