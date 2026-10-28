@@ -77,6 +77,7 @@
 ## 2026-10-28 owner 宣告 try2 失败
 
 - owner 宣告 try2 失败（结果不采用），暂不清理：session 不归档、lab 仓库不动、归档分支不改；owner 要先 review instruction。owner 的看法：run 的代码没必要保留（都在 lab 仓库），归档留一份 high level 的 instruction 就够；下一轮要把 budget 纳入 setup（主 session、run、评审的模型分开定）。
+- owner 把 harness engineering 做成系列（tracker 新开 `Harness engineering` 一节：setup、1a 页面结构 / 1b error framework、2 每阶段的模型和 effort、3 code review agent）；本 session 聚焦 1a 和 setup，之后回到实验。
 - 已有的 run 阶段数据完整可用（十个 run 的 T_pr、T_green、成本、行为检查、B 组合规），缺的是清单审计和盲审。
 
 ## 待 owner 决定（随继续的指示一起）
