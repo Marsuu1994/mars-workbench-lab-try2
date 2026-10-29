@@ -80,6 +80,14 @@
 - owner 把 harness engineering 做成系列（tracker 新开 `Harness engineering` 一节：setup、1a 页面结构 / 1b error framework、2 每阶段的模型和 effort、3 code review agent）；本 session 聚焦 1a 和 setup，之后回到实验。
 - 已有的 run 阶段数据完整可用（十个 run 的 T_pr、T_green、成本、行为检查、B 组合规），缺的是清单审计和盲审。
 
+## 2026-10-29 收口的决定
+
+- owner：page structure 不再测，try2 跑完就 wrap up；放几天，额度重置后用 Opus 的 controller session 补完（评审由 code review agent 或 Opus session 做）。
+- T_pages 从 8 份 transcript 算出：A 7.3 / 7.8 / 7.8 / 7.5 / 8.5（均值 7.8），B1–B3 8.4 / 8.3 / 9.7（均值 8.8）；B 的关键路径是 Priorities agent（6.8–7.4 min，冷启动加最大的一页），串行 session setup 后写三页 6.3–7.3 min；B 合并后到 PR 的尾巴也更长（7.1–8.6 对 4.6–6.7 min）。H1 目前不成立，H2 不成立，H3 成立。
+- 归档分支 `9ef4359`（PR #91）：去掉 `try2/data/patches/`；experiments README 改成原始测量留在 lab 仓库（归档不删）、加 `_tools/` 和预算模板行、Controller notes 改角色规则；try2 instruction Status 改 paused、加"预算和角色"一节、改第 4–7 步和差异表；takeaways §4 加决定；tracker 1a 改下一步；README Update Log 10-29。
+- 盲审 setup 推到 `claude/code-reviewer-agent-spike`（PR #82，commit `9197799`）：`try2/review-setup.md` 加 `_tools/make-review-branch.sh`、`scrub.py`、十份评审 prompt、模板、scrub 规则、controller-briefs，路径和归档分支一致。
+- 仍未动：二十个 session（都 idle）、lab 仓库、patch 以外的归档内容、心跳（停着）。
+
 ## 待 owner 决定（随继续的指示一起）
 
 1. patch 的处理：去掉（留 diffstat，lab 仓库归档不删）/ 推 run 分支到主仓库 / 只留推荐 run 的 / 保持并加 `.ignore`。去掉的话：加删除 commit，还是从分支历史里拿掉 `ec1647e` 再 force push。
