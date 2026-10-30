@@ -1,0 +1,12 @@
+PASS | Priorities: page opens
+PASS | Priorities desktop: popover → Todo tracks the task (trackTask)
+PASS | Priorities desktop: popover → Done removes the card and opens the undo toast (completeTask)
+PASS | Priorities desktop: Undo puts the card back where it was (undo)
+PASS | Priorities desktop: a card dragged to another quadrant is reprioritized (handleDragEnd)
+PASS | Priorities desktop: the quadrant Add opens the modal and the task lands in that quadrant (openAddTask)
+PASS | Priorities: page opens
+PASS | Priorities mobile: tapping a card opens the sheet; Done completes; Undo restores (openMoveToSheet, completeTask, undo)
+PASS | Priorities mobile: sheet → Todo tracks the task (trackTask)
+PASS | Priorities mobile: the title-bar + opens the picker modal and the task lands in the chosen quadrant (openAddTask)
+console errors: 0
+SUMMARY 10/10 passed, 0 console errors

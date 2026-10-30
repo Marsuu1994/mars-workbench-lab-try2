@@ -1,0 +1,6 @@
+PASS | Dump: page opens
+PASS | Dump: Ctrl+Enter captures an entry at the top of the feed (capture)
+PASS | Dump: the Dump button captures 17 more entries (capture)
+PASS | Dump: scrolling to the bottom loads the next page (loadMore)
+console errors: 0
+SUMMARY 4/4 passed, 0 console errors

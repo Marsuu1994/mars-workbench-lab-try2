@@ -1,0 +1,4 @@
+PASS | Board desktop: a Todo card dragged to Done stays done (handleDragEnd)
+PASS | Board mobile: the backlog sheet pulls a card to Todo (pullToTodo)
+console errors: 0
+SUMMARY 2/2 passed, 0 console errors

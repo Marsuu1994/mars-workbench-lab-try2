@@ -1,0 +1,4 @@
+FAIL | Board desktop: a Todo card dragged to Done stays done (handleDragEnd) | expect(locator).toContainText(expected) failed
+PASS | Board mobile: the backlog sheet pulls a card to Todo (pullToTodo)
+console errors: 0
+SUMMARY 1/2 passed, 0 console errors
