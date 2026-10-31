@@ -1,0 +1,38 @@
+{
+  "label": "R5",
+  "scores": {
+    "correctness": 5,
+    "spec": 4,
+    "consistency": 4,
+    "conventions": 5,
+    "scope": 4,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "minor",
+      "where": "design/spike/component-structure.md",
+      "what": "Spike not moved to design/spike/archived/ although this PR finishes its implementation (spike README Lifecycle step 5); design/tracker.md:33 still links the unarchived path."
+    },
+    {
+      "severity": "minor",
+      "where": "src/utils/oneOffUtils.ts:33, src/utils/dump.ts:29",
+      "what": "PrioritiesPageData and DumpPageData live in src/utils/ while the Projects and Board page data types live in src/types/."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/oneOffUtils.ts:41, src/utils/dump.ts:41",
+      "what": "The two new route adapters differ in style: toPrioritiesPageProps is an arrow const, toDumpPageProps (and toBoardCards) a function declaration."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/oneOffUtils.ts:2",
+      "what": "A client-safe util imports the MatrixData type from the server-only services layer; allowed as import type, but the type belongs in src/types/."
+    },
+    {
+      "severity": "nit",
+      "where": "src/components/domain/priorities/QuadrantCell.tsx:25",
+      "what": "usePrioritiesPageContext() sits between two useTranslations calls, splitting the hook grouping."
+    }
+  ]
+}

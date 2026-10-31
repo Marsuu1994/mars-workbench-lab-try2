@@ -1,0 +1,38 @@
+{
+  "label": "R4",
+  "scores": {
+    "correctness": 5,
+    "spec": 5,
+    "consistency": 4,
+    "conventions": 5,
+    "scope": 5,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "minor",
+      "where": "AGENTS.md:115",
+      "what": "The UI Workflow 'Bad' example still names PriorityMatrixPage, which this change renamed to PrioritiesPage."
+    },
+    {
+      "severity": "minor",
+      "where": "src/types/priorities.ts:1",
+      "what": "PrioritiesPageData extends the service-layer MatrixData, so src/types now depends on src/services, unlike BoardData and ProjectsPageData which are built from DAL types."
+    },
+    {
+      "severity": "nit",
+      "where": "src/components/domain/board/BoardPage.tsx:77",
+      "what": "pageContext is declared between two render functions, whereas ProjectsPage and PrioritiesPage declare it after the handlers and before the render functions."
+    },
+    {
+      "severity": "nit",
+      "where": "src/app/design/scenarios/priorities/page.tsx:28-140",
+      "what": "The same toPrioritiesPageProps({tasks, activePlan}, SCENARIO_TODAY) call is spelled out seven times; a fixture helper would read better."
+    },
+    {
+      "severity": "nit",
+      "where": "src/app/design/scenarios/priorities/MobileMoveToPanelScenario.tsx:10",
+      "what": "The activePlanId prop doc says 'The week the task could be tracked into' but the value is a plan id."
+    }
+  ]
+}

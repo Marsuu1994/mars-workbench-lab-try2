@@ -1,0 +1,43 @@
+{
+  "label": "R3",
+  "scores": {
+    "correctness": 5,
+    "spec": 4,
+    "consistency": 4,
+    "conventions": 4,
+    "scope": 4,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "major",
+      "where": "design/spike/component-structure.md; design/tracker.md:33",
+      "what": "The spike's plan is implemented but the spike was not moved to design/spike/archived/ and the tracker still links the old path, against the spike README's lifecycle step 5."
+    },
+    {
+      "severity": "minor",
+      "where": "src/utils/dump.ts:18",
+      "what": "DumpFeedResult hand-writes the action's {data}|{error} shape instead of deriving it from fetchDumpEntriesAction's return type, so it drifts silently if the action changes."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/oneOffUtils.ts:31 vs src/utils/dump.ts:27",
+      "what": "The two route adapters differ in form (const arrow vs function declaration)."
+    },
+    {
+      "severity": "nit",
+      "where": "src/app/design/scenarios/dump/page.tsx:11",
+      "what": "Dump's scenario adapter wrapper lives in page.tsx while Priorities' prioritiesPage helper lives in fixtures.ts."
+    },
+    {
+      "severity": "nit",
+      "where": "src/components/domain/priorities/PrioritiesPage.tsx:172",
+      "what": "openAddTask is a const arrow while its sibling writes trackTask and completeTask are function declarations."
+    },
+    {
+      "severity": "nit",
+      "where": "src/types/dump.ts:15",
+      "what": "DumpPageData keeps initial*-prefixed prop names while the other pages' <Feature>PageData types name their rows plainly."
+    }
+  ]
+}

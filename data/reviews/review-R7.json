@@ -1,0 +1,43 @@
+{
+  "label": "R7",
+  "scores": {
+    "correctness": 5,
+    "spec": 4,
+    "consistency": 4,
+    "conventions": 4,
+    "scope": 4,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "major",
+      "where": "design/spike/component-structure.md:1",
+      "what": "The spike is fully implemented but still sits in design/spike/ instead of being git mv'd to archived/ with its tracker link fixed, as the spike README's step 5 requires."
+    },
+    {
+      "severity": "minor",
+      "where": "src/types/priorities.ts:9",
+      "what": "Page input types are named PrioritiesPageProps / DumpPageProps while the reference page uses ProjectsPageData and Board uses BoardData, leaving three naming schemes."
+    },
+    {
+      "severity": "minor",
+      "where": "src/hooks/useDumpFeed.ts:34",
+      "what": "DumpFeedInit redeclares entries and nextCursor instead of extending the new DumpFeedPage type."
+    },
+    {
+      "severity": "nit",
+      "where": "AGENTS.md:115",
+      "what": "The Bad example still names PriorityMatrixPage, a component this change deleted."
+    },
+    {
+      "severity": "nit",
+      "where": "src/components/domain/board/BoardPage.tsx:126",
+      "what": "Root class order 'flex h-full flex-col' differs from the 'flex flex-col h-full' used by DumpPage and PrioritiesPage."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/dump.ts:95",
+      "what": "toDumpPageProps hand-types the action result as {data} | {error: unknown} rather than deriving it from fetchDumpEntriesAction's return type."
+    }
+  ]
+}

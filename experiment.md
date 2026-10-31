@@ -115,3 +115,10 @@
 
 - 08:53 UTC（五小时窗口 08:50 重置后）一次起十个 `claude-fable-5-1` 评审 session，R1–R10，各自 checkout `experiment/review-R<n>`，prompt 是模板填 `{R}`，没有别的 session 或 subagent 在跑。session id 在 `data/reviews.json`（旧的 10-27 session 记在 `abandoned`）。
 - 下一步：全部 idle 后收齐 JSON 并审计，先给 owner 看。
+
+## 2026-10-31 盲审完成
+
+- 十份都在 09:02 前交卷（R7 09:19 有一个监视器到期的一行回复，无工具调用）；合计 $41.19，窗口没有触顶。
+- 收集和审计：一个 subagent（controller-briefs › Review collection），原文、JSON 和汇总在 `data/reviews/`。没有用 GitHub 工具或联网；git 只看了 HEAD~1/HEAD（十份都跑过 `git log --oneline -3`，多显示一行 HEAD~2 的标题，没有进一步使用）；R2、R3、R5–R7 创建了 gitignored 的 `.env.local`，没有改 tracked 文件。
+- 六项总分（满分 30）：R1 28、R2 29、R3 26、R4 29、R5 27、R6 28、R7 26、R8 29、R9 28、R10 28；没有 blocker，major 只有 R1、R3、R7 各一条（spike 没移到 archived/）。映射到报告时再公开。
+- 下一步等 owner 看过：清单审计 ×10（一次 2–3 个）、B4/B5 transcript、报告。

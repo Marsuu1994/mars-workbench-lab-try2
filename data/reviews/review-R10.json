@@ -1,0 +1,28 @@
+{
+  "label": "R10",
+  "scores": {
+    "correctness": 5,
+    "spec": 5,
+    "consistency": 5,
+    "conventions": 4,
+    "scope": 4,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "minor",
+      "where": "design/spike/component-structure.md",
+      "what": "Spike still sits in design/spike/ although its last planned PR landed; the spike README's lifecycle step 5 says to git mv it to archived/ in that PR."
+    },
+    {
+      "severity": "nit",
+      "where": "AGENTS.md:115",
+      "what": "The Bad example still names PriorityMatrixPage, which this change renamed to PrioritiesPage."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/dump.ts:88",
+      "what": "DumpFeedResult re-declares fetchDumpEntriesAction's result shape by hand instead of deriving it from the action's return type."
+    }
+  ]
+}

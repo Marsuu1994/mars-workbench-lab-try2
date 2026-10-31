@@ -1,0 +1,33 @@
+{
+  "label": "R2",
+  "scores": {
+    "correctness": 5,
+    "spec": 5,
+    "consistency": 5,
+    "conventions": 4,
+    "scope": 5,
+    "readability": 5
+  },
+  "defects": [
+    {
+      "severity": "minor",
+      "where": "AGENTS.md:115",
+      "what": "The Bad example still names PriorityMatrixPage, which this change renamed to PrioritiesPage."
+    },
+    {
+      "severity": "nit",
+      "where": "src/hooks/useDumpFeed.ts:34",
+      "what": "DumpFeedInit re-declares entries and nextCursor instead of extending the new DumpFeedPage type."
+    },
+    {
+      "severity": "nit",
+      "where": "src/utils/dump.ts:93",
+      "what": "The adapter's feed parameter hand-writes the action's result shape rather than deriving it, so a changed action return type would not be caught here."
+    },
+    {
+      "severity": "nit",
+      "where": "src/components/domain/priorities/PrioritiesPage.tsx:89",
+      "what": "The useMemo around groupTasksByQuadrant is kept although the spike asked to replace the useMemo grouping and the React Compiler already memoizes."
+    }
+  ]
+}
