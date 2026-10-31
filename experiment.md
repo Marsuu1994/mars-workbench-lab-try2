@@ -102,3 +102,11 @@
 3. 收数据串行：B4、B5 transcript（续 agent a37e0a9055a2b8171 / a4b6b63aa9ad3c592，或脚本）；清单审计一次 2–3 个（agent id 在 §4 收数据的记录里，可续）；PR 描述从 lab 仓库 PR #1–#10 重新拉（`pull_request_read` get）存 `try2/data/pr-<RUN>.md`。
 4. 汇总脚本出表（transcript 指标、成本、T_pr/T_green、清单、行为、评审），H1–H4 判定，和 try1 并排；报告 `try2/report.md`。
 5. 推荐 run 的分支同名推到主仓库、对 `main` 开 PR；归档 PR 更新（README Update Log、tracker）；二十个 session 归档；lab 仓库交 owner。
+
+## 2026-10-31 决定
+
+- PR #91 合并（main 上 `experiments/` 只留 README、AGENTS.md、CLAUDE.md 和每个 try 的 instruction / report）；try2 的完整协议、模板、工具、controller notes 在本分支 `protocol/`、`tools/`。
+- 盲审：按原协议重跑全部十份，R4 也重跑（十个新 session，`claude-fable-5-1`，`source_revision` 各自的 `experiment/review-R<n>`，prompt 是 `protocol/prompts/review-template.txt` 填 `{R}`，effort 来自 review 分支上的 settings 文件 = high）。窗口刚重置时单独起，期间不起 subagent；先查 `rate_limit_info`。10-27 那十个评审 session 作废，不续跑。
+- 盲审跑完后：收齐十份 JSON 并审计（一个 subagent，`protocol/prompts/controller-briefs.md` › Review collection），结果先给 owner 看，再做清单审计、B4/B5 transcript 和报告。
+- `experiment-controller` skill（tracker › Harness engineering › Setup）：try2 收完之后在新 session 单独开 PR；controller notes（`protocol/controller-notes.md`）变成 SKILL.md，加 session usage、transcript metrics、窗口预算、review 分支、行为检查五个脚本，`disable-model-invocation`，起点分支要删掉 skill。
+
