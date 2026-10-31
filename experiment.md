@@ -122,3 +122,9 @@
 - 收集和审计：一个 subagent（controller-briefs › Review collection），原文、JSON 和汇总在 `data/reviews/`。没有用 GitHub 工具或联网；git 只看了 HEAD~1/HEAD（十份都跑过 `git log --oneline -3`，多显示一行 HEAD~2 的标题，没有进一步使用）；R2、R3、R5–R7 创建了 gitignored 的 `.env.local`，没有改 tracked 文件。
 - 六项总分（满分 30）：R1 28、R2 29、R3 26、R4 29、R5 27、R6 28、R7 26、R8 29、R9 28、R10 28；没有 blocker，major 只有 R1、R3、R7 各一条（spike 没移到 archived/）。映射到报告时再公开。
 - 下一步等 owner 看过：清单审计 ×10（一次 2–3 个）、B4/B5 transcript、报告。
+
+## 2026-10-31 收数据完成、报告
+
+- 清单审计 ×10（一次三个 general-purpose subagent，brief 同 controller-briefs › Checklist audit，20 条原文）：A1–A3 20/20，A4、A5、B1–B5 19/20（都只差第 19 条 spike 归档），`data/checklists/`。
+- B4、B5 transcript（同 brief，键名对齐 B3）：T_pages 9.3 / 10.4，`data/transcript-B4.json`、`transcript-B5.json`。
+- 报告：主仓库 `experiments/page-structure-parallel/try2/report.md`（盲审映射在报告里公开）。H1、H2 不成立，H3、H4 成立；建议合并 A1。
