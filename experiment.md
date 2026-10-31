@@ -110,3 +110,8 @@
 - 盲审跑完后：收齐十份 JSON 并审计（一个 subagent，`protocol/prompts/controller-briefs.md` › Review collection），结果先给 owner 看，再做清单审计、B4/B5 transcript 和报告。
 - `experiment-controller` skill（tracker › Harness engineering › Setup）：try2 收完之后在新 session 单独开 PR；controller notes（`protocol/controller-notes.md`）变成 SKILL.md，加 session usage、transcript metrics、窗口预算、review 分支、行为检查五个脚本，`disable-model-invocation`，起点分支要删掉 skill。
 
+
+## 2026-10-31 盲审启动
+
+- 08:53 UTC（五小时窗口 08:50 重置后）一次起十个 `claude-fable-5-1` 评审 session，R1–R10，各自 checkout `experiment/review-R<n>`，prompt 是模板填 `{R}`，没有别的 session 或 subagent 在跑。session id 在 `data/reviews.json`（旧的 10-27 session 记在 `abandoned`）。
+- 下一步：全部 idle 后收齐 JSON 并审计，先给 owner 看。

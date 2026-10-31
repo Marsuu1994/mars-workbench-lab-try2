@@ -1,42 +1,92 @@
 {
-  "R1": {
-    "session": "session_01KCt6pLmW7pbkc8N5AYCfHi",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R2": {
-    "session": "session_01KCt6pLjii8hGXpQuDQbyZ3",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R3": {
-    "session": "session_01KCt6pMxyxJLEfCpQL2sLKi",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R4": {
-    "session": "session_01KCt6pMy88qbg4DRcfJupLJ",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R5": {
-    "session": "session_01KCt6pK3geD5XxZqtY3SB4g",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R6": {
-    "session": "session_01KCt6pMk1qy7WjCHRAvuMCg",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R7": {
-    "session": "session_01KCt6pNLN4wDvSzvZSmLzJu",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R8": {
-    "session": "session_01KCt6pLAAr9Dvk7pNTK56Lf",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R9": {
-    "session": "session_01KCt6pMad3TEgd2M8nEtfbn",
-    "created": "2026-10-27T05:54:36Z"
-  },
-  "R10": {
-    "session": "session_01KCt6pHruDYkUaMWkqvdXR1",
-    "created": "2026-10-27T05:54:36Z"
+ "R1": {
+  "session": "session_01KCt6pLaECrou8wouB57Mvb",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pLmW7pbkc8N5AYCfHi",
+   "created": "2026-10-27T05:54:36Z"
   }
+ },
+ "R2": {
+  "session": "session_01KCt6pLEq96PB7o6aTZTpsK",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pLjii8hGXpQuDQbyZ3",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R3": {
+  "session": "session_01KCt6pMerXrwNsQ46VxaT25",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pMxyxJLEfCpQL2sLKi",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R4": {
+  "session": "session_01KCt6pJc71RkCEVojKGRDzc",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pMy88qbg4DRcfJupLJ",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R5": {
+  "session": "session_01KCt6pJ3VhEWrRm9btMLQPZ",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pK3geD5XxZqtY3SB4g",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R6": {
+  "session": "session_01KCt6pNUQGWx1VhEze1bz6q",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pMk1qy7WjCHRAvuMCg",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R7": {
+  "session": "session_01KCt6pNCFAgHQkGopQ3Ru98",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pNLN4wDvSzvZSmLzJu",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R8": {
+  "session": "session_01KCt6pN5BkjwvMqpM5wczYS",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pLAAr9Dvk7pNTK56Lf",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R9": {
+  "session": "session_01KCt6pNP5J3jBfQjfrAb2Aq",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pMad3TEgd2M8nEtfbn",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ },
+ "R10": {
+  "session": "session_01KCt6pKLbsV41DqdjG3Mu8B",
+  "created": "2026-10-31T08:53Z",
+  "model": "claude-fable-5-1",
+  "abandoned": {
+   "session": "session_01KCt6pHruDYkUaMWkqvdXR1",
+   "created": "2026-10-27T05:54:36Z"
+  }
+ }
 }
